@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../dashboard_screen.dart';
 import '../riwayat_screen.dart';
 import '../info_screen.dart';
+import 'editprofil_screen.dart';
+import 'keamanan_screen.dart';
+import 'pusatbantuan_screen.dart';
+import 'syarat_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -152,7 +156,12 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
 
               decoration: BoxDecoration(
-                color: const Color(0xffAF101A),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xffAF101A),
+                    Color(0xff8B0D15),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(24),
               ),
 
@@ -252,26 +261,53 @@ class ProfileScreen extends StatelessWidget {
             buildMenuItem(
               icon: Icons.person,
               title: 'Edit Profil',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const EditProfileScreen(),
+                  ),
+                );
+              },
             ),
 
             buildMenuItem(
               icon: Icons.lock,
               title: 'Keamanan & Kata Sandi',
-            ),
-
-            buildMenuItem(
-              icon: Icons.payment,
-              title: 'Metode Pembayaran',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SecurityScreen(),
+                  ),
+                );
+              },
             ),
 
             buildMenuItem(
               icon: Icons.help,
               title: 'Pusat Bantuan',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const HelpScreen(),
+                  ),
+                );
+              },
             ),
 
             buildMenuItem(
               icon: Icons.description,
               title: 'Syarat & Ketentuan',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TermsScreen(),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 30),
@@ -359,14 +395,7 @@ class ProfileScreen extends StatelessWidget {
           );
 
         } else if (index == 3) {
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const ProfileScreen(),
-            ),
-          );
-
+          return; // Sudah di halaman profil, tidak perlu navigasi
         }
 
       },
@@ -400,33 +429,26 @@ class ProfileScreen extends StatelessWidget {
   Widget buildMenuItem({
     required IconData icon,
     required String title,
+    required VoidCallback onTap,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor:
-              const Color(0xffAF101A).withAlpha(26), // 0.1 * 255
-
+              const Color(0xffAF101A).withAlpha(26),
           child: Icon(
             icon,
             color: const Color(0xffAF101A),
           ),
         ),
-
         title: Text(title),
-
-        trailing: const Icon(
-          Icons.chevron_right,
-        ),
-
-        onTap: () {},
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
       ),
     );
   }

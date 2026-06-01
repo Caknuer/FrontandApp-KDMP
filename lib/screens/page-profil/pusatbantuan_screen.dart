@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class HelpCenterPage extends StatefulWidget {
-  const HelpCenterPage({super.key});
+class HelpScreen extends StatefulWidget {
+  const HelpScreen({super.key});
 
   @override
-  State<HelpCenterPage> createState() => _HelpCenterPageState();
+  State<HelpScreen> createState() => _HelpScreenState();
 }
 
-class _HelpCenterPageState extends State<HelpCenterPage> {
+class _HelpScreenState extends State<HelpScreen> {
   final List<Map<String, dynamic>> categories = [
     {
       "title": "Simpanan",
@@ -167,31 +167,6 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             const SizedBox(height: 32),
           ],
         ),
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: primaryColor,
-        unselectedItemColor: const Color(0xFF5D5F5F),
-        currentIndex: 2,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Beranda",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: "Riwayat",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.help),
-            label: "Info",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profil",
-          ),
-        ],
       ),
     );
   }

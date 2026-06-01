@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class SecurityPage extends StatefulWidget {
-  const SecurityPage({super.key});
+class SecurityScreen extends StatefulWidget {
+  const SecurityScreen({super.key});
 
   @override
-  State<SecurityPage> createState() => _SecurityPageState();
+  State<SecurityScreen> createState() => _SecurityScreenState();
 }
 
-class _SecurityPageState extends State<SecurityPage> {
+class _SecurityScreenState extends State<SecurityScreen> {
   bool biometricEnabled = true;
   bool twoFactorEnabled = false;
 
