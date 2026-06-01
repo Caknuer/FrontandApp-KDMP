@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -36,7 +38,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool isSaving = false;
   bool saved = false;
-  String? jenisKelamin;
+  String? jenisKelamin = "Laki-laki";
 
   Future<void> saveProfile() async {
     setState(() {
@@ -56,6 +58,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!mounted) return;
 
     Navigator.pop(context,true);
+  }
+
+  File? profileImage;
+  final ImagePicker picker = ImagePicker();
+
+  Future<void> pickProfileImage() async {
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      setState(() {
+        profileImage = File(image.path);
+      });
+    }
   }
 
   @override
@@ -98,7 +116,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
         child: Column(
           children: [
             const SizedBox(height: 12),
@@ -107,38 +125,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             Column(
               children: [
                 Stack(
+                  clipBehavior: Clip.none,
                   children: [
                     Container(
-                      width: 112,
-                      height: 112,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
+                        color: Colors.grey.shade200,
                         border: Border.all(
-                          color: Colors.grey.shade300,
+                          color: Colors.white,
                           width: 4,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(20),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: ClipOval(
-                        child: Image.network(
-                          "https://lh3.googleusercontent.com/aida-public/AB6AXuA0FXiVcG3TR5YwDIR_g4eKz-PZBzzPID8hsgjjZFcfrPgX__LyLF7yrYFOc5RxIZUHYUDfMr5CBQEfp_68UvIqMq1VLS0w1j1H3StGQHKCzJ7Pw50KzGFpnsxQto8iB05lkYAjPviHPd-HBZozyiBlFn7FNLE_3KRbJyLClWwCdhZNkQ9eyLYL3nf9Bz2Dz8EU2SlwxzioNcL71D49F8nPzJBPZO2XsAy2r3chNYnRyBnP9gvnCcnGqC8lx8759nCygDIHhA4N2jIO",
-                          fit: BoxFit.cover,
-                        ),
+                        child: profileImage != null
+                            ? Image.file(
+                                profileImage!,
+                                fit: BoxFit.cover,
+                              )
+                            : Icon(
+                                Icons.person,
+                                size: 70,
+                                color: Colors.grey.shade500,
+                              ),
                       ),
                     ),
 
                     Positioned(
-                      bottom: 0,
                       right: 0,
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: primaryColor,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.edit,
+                      bottom: 0,
+                      child: InkWell(
+                        onTap: pickProfileImage,
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 3,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
                             color: Colors.white,
                             size: 18,
                           ),
-                          onPressed: () {},
                         ),
                       ),
                     ),
@@ -157,7 +197,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ],
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
+
+            TextButton.icon(
+              onPressed: pickProfileImage,
+              icon: const Icon(
+                Icons.photo_library,
+                size: 18,
+              ),
+              label: const Text(
+                "Ubah Foto Profil",
+              ),
+            ),
+
+            const SizedBox(height: 20),
 
             _buildField(
               label: "Nama Lengkap",
@@ -173,6 +226,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   "Masukkan nama lengkap",
                 ),
               )
+            ),
+
+            const SizedBox(height: 20),
+
+            _buildField(
+              label: "NIK (Terverifikasi)",
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF6F3F2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.badge_outlined,
+                      color: Color(0xFFAF101A),
+                    ),
+
+                    SizedBox(width: 12),
+
+                    Expanded(
+                      child: Text(
+                        "3300112233440001",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+
+                    Icon(
+                      Icons.verified,
+                      color: Colors.green,
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -195,6 +291,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
             ),
+
+            const SizedBox(height: 20),
 
             _buildField(
               label: "Jenis Kelamin",
@@ -251,8 +349,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 },
               ),
             ),
-
-            const SizedBox(height: 20),
 
             const SizedBox(height: 20),
 
@@ -313,7 +409,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                         if (pickedDate != null) {
                           tanggalLahirController.text =
-                              "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                            "${pickedDate.day.toString().padLeft(2, '0')}-"
+                            "${pickedDate.month.toString().padLeft(2, '0')}-"
+                            "${pickedDate.year}";
                         }
                       },
                     ),
@@ -348,11 +446,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 20),
 
+            // Todo:
+            // Ganti TextFormField menjadi:
+            // Provinsi
+            // Kabupaten/Kota
+            // Kecamatan
+            // Kelurahan/Desa
+            // Detail Alamat
+
             _buildField(
               label: "Alamat Domisili",
               child: TextFormField(
                 controller: addressController,
                 maxLines: 4,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Alamat wajib diisi';
+                  }
+                  return null;
+                },
                 decoration: _inputDecoration(
                   "Masukkan alamat",
                 ),
@@ -361,21 +473,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 20),
 
-            _buildField(
-              label: "NIK (Terverifikasi)",
-              child: TextFormField(
-                initialValue: "3300112233440001",
-                readOnly: true,
-                decoration: _inputDecoration("").copyWith(
-                  suffixIcon: const Icon(
-                    Icons.verified,
-                    color: primaryColor,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 32),
 
             SizedBox(
               width: double.infinity,
