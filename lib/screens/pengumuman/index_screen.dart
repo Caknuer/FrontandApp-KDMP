@@ -72,15 +72,6 @@ class _PengumumanPageState extends State<PengumumanPage> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.search,
-              color: Color(0xffAF101A),
-            ),
-            onPressed: () {},
-          ),
-        ],
       ),
 
       body: Column(
