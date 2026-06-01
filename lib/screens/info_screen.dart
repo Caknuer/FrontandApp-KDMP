@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dashboard_screen.dart';
 import 'riwayat_screen.dart';
-import 'profile_screen.dart';
+import 'page-profil/profile_screen.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});

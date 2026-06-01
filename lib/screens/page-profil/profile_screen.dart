@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dashboard_screen.dart';
-import 'riwayat_screen.dart';
-import 'info_screen.dart';
+import '../dashboard_screen.dart';
+import '../riwayat_screen.dart';
+import '../info_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

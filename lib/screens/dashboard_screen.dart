@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'riwayat_screen.dart';
 import 'info_screen.dart';
-import 'profile_screen.dart';
+import 'page-profil/profile_screen.dart';
 import 'simpanan_screen.dart';
 import 'news/index_screen.dart';
 import 'pengumuman/index_screen.dart';
 import 'tarik_screen.dart';
+import 'notifikasi_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -50,7 +51,15 @@ class DashboardScreen extends StatelessWidget {
             children: [
 
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const NotificationPage(),
+                    ),
+                  );
+                },
 
                 icon: const Icon(
                   Icons.notifications,
