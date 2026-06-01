@@ -8,6 +8,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
   final nameController = TextEditingController(
     text: "Budi Santoso",
   );
@@ -20,6 +21,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     text: "budi.santoso@email.com",
   );
 
+  final tempatLahirController = TextEditingController(
+    text: "Pasuruan",
+  );
+
+  final tanggalLahirController = TextEditingController(
+    text: "15 Agustus 1998",
+  );
+
   final addressController = TextEditingController(
     text:
         "Jl. Desa Makmur No. 12, RT 04 RW 02, Kec. Sukamaju, Kabupaten Klaten, Jawa Tengah",
@@ -27,6 +36,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool isSaving = false;
   bool saved = false;
+  String? jenisKelamin;
 
   Future<void> saveProfile() async {
     setState(() {
@@ -41,14 +51,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       saved = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
-    if (mounted) {
-      setState(() {
-        saved = false;
-      });
-    }
+    if (!mounted) return;
+
+    Navigator.pop(context,true);
   }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    emailController.dispose();
+    tempatLahirController.dispose();
+    tanggalLahirController.dispose();
+    addressController.dispose();
+    super.dispose();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +95,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       ),
 
-      body: SingleChildScrollView(
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         child: Column(
           children: [
@@ -141,11 +162,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _buildField(
               label: "Nama Lengkap",
               child: TextFormField(
-                controller: nameController,
+              controller: nameController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Nama wajib diisi';
+                  }
+                  return null;
+                },
                 decoration: _inputDecoration(
                   "Masukkan nama lengkap",
                 ),
-              ),
+              )
             ),
 
             const SizedBox(height: 20),
@@ -154,6 +181,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               label: "Nomor WhatsApp",
               child: TextFormField(
                 controller: phoneController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Nomor HP wajib diisi';
+                  }
+                  return null;
+                },
                 keyboardType: TextInputType.phone,
                 decoration: _inputDecoration(
                   "81234567890",
@@ -163,15 +196,152 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
 
+            _buildField(
+              label: "Jenis Kelamin",
+              child: DropdownMenu<String>(
+                width: MediaQuery.of(context).size.width - 32,
+                initialSelection: jenisKelamin,
+                hintText: "Pilih Jenis Kelamin",
+                leadingIcon: const Icon(
+                  Icons.person_outline,
+                  color: Color(0xFFAF101A),
+                ),
+                menuStyle: MenuStyle(
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+                inputDecorationTheme: InputDecorationTheme(
+                  filled: true,
+                  fillColor: const Color(0xFFF6F3F2),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFAF101A),
+                      width: 2,
+                    ),
+                  ),
+                ),
+                dropdownMenuEntries: const [
+                  DropdownMenuEntry(
+                    value: "Laki-laki",
+                    label: "Laki-laki",
+                    leadingIcon: Icon(Icons.male),
+                  ),
+                  DropdownMenuEntry(
+                    value: "Perempuan",
+                    label: "Perempuan",
+                    leadingIcon: Icon(Icons.female),
+                  ),
+                ],
+                onSelected: (value) {
+                  setState(() {
+                    jenisKelamin = value;
+                  });
+                },
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            const SizedBox(height: 20),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _buildField(
+                    label: "Tempat Lahir",
+                    child: TextFormField(
+                      controller: tempatLahirController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Tempat lahir wajib diisi';
+                        }
+                        return null;
+                      },
+                      decoration: _inputDecoration(
+                        "Contoh: Klaten",
+                      ).copyWith(
+                        prefixIcon: const Icon(
+                          Icons.location_city,
+                          color: Color(0xFFAF101A),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: _buildField(
+                    label: "Tanggal Lahir",
+                    child: TextFormField(
+                      controller: tanggalLahirController,
+                      readOnly: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Tanggal lahir wajib diisi';
+                        }
+                        return null;
+                      },
+                      decoration: _inputDecoration(
+                        "Pilih Tanggal",
+                      ).copyWith(
+                        prefixIcon: const Icon(
+                          Icons.calendar_month,
+                          color: Color(0xFFAF101A),
+                        ),
+                      ),
+                      onTap: () async {
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime(2000),
+                          firstDate: DateTime(1950),
+                          lastDate: DateTime.now(),
+                        );
+
+                        if (pickedDate != null) {
+                          tanggalLahirController.text =
+                              "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 20),
 
             _buildField(
               label: "Email",
               child: TextFormField(
                 controller: emailController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Email wajib diisi';
+                  }
+
+                  if (!value.contains('@')) {
+                    return 'Format email tidak valid';
+                  }
+
+                  return null;
+                },
                 keyboardType: TextInputType.emailAddress,
                 decoration: _inputDecoration(
-                  "nama@email.com",
+                  "Masukkan email",
                 ),
               ),
             ),
@@ -211,7 +381,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: isSaving ? null : saveProfile,
+                onPressed: isSaving? null: () {
+                    if (_formKey.currentState!.validate()) {
+                      saveProfile();
+                    }
+                  },
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       saved ? Colors.green : primaryColor,
@@ -253,6 +427,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
