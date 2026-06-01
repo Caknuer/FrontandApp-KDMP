@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+class EditProfileScreen extends StatefulWidget {
+  const EditProfileScreen({super.key});
 
   @override
-  State<EditProfilePage> createState() => _EditProfilePageState();
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _EditProfileScreenState extends State<EditProfileScreen> {
   final nameController = TextEditingController(
     text: "Budi Santoso",
   );
@@ -74,31 +74,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-      ),
-
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 3,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: "Beranda",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history),
-            label: "Riwayat",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.info_outline),
-            selectedIcon: Icon(Icons.info),
-            label: "Info",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: "Akun",
-          ),
-        ],
       ),
 
       body: SingleChildScrollView(

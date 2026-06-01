@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dashboard_screen.dart';
-import 'riwayat_screen.dart';
-import 'info_screen.dart';
-import 'page-profil/profile_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -338,86 +334,6 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
             ),
           ],
         ),
-      ),
-
-      bottomNavigationBar:BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor:MyApp.primaryColor,
-        unselectedItemColor:
-            Colors.grey,
-        type:
-            BottomNavigationBarType
-                .fixed,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>
-                    const DashboardScreen(),
-              ),
-            );
-
-          } else if (index ==
-              1) {
-
-            Navigator.push(
-              context,
-
-              MaterialPageRoute(
-                builder: (_) =>
-                    const TransactionHistoryScreen(),
-              ),
-            );
-
-          } else if (index ==
-              2) {
-
-            Navigator.push(
-              context,
-
-              MaterialPageRoute(
-                builder: (_) =>
-                    const InfoScreen(),
-              ),
-            );
-
-          } else if (index ==
-              3) {
-
-            Navigator.push(
-              context,
-
-              MaterialPageRoute(
-                builder: (_) =>
-                    const ProfileScreen(),
-              ),
-            );
-          }
-        },
-
-        items: const [
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Beranda',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Riwayat',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            label: 'Info',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
       ),
     );
   }
