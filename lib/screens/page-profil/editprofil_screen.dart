@@ -57,7 +57,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (!mounted) return;
 
-    Navigator.pop(context,true);
+    Navigator.pop(context,profileImage);
   }
 
   File? profileImage;
