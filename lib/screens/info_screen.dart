@@ -16,10 +16,7 @@ class InfoScreen extends StatelessWidget {
         elevation: 0,
         title: const Row(
           children: [
-            Icon(
-              Icons.account_balance,
-              color: Color(0xffAF101A),
-            ),
+            Icon(Icons.account_balance, color: Color(0xffAF101A)),
             SizedBox(width: 10),
             Text(
               'Koperasi Desa',
@@ -30,22 +27,6 @@ class InfoScreen extends StatelessWidget {
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.search,
-              color: Colors.black54,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.notifications,
-              color: Colors.black54,
-            ),
-          ),
-        ],
       ),
 
       body: SingleChildScrollView(
@@ -54,7 +35,6 @@ class InfoScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             // HERO SECTION
             Container(
               width: double.infinity,
@@ -68,7 +48,6 @@ class InfoScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
@@ -94,7 +73,7 @@ class InfoScreen extends StatelessWidget {
                   const Text(
                     'Membangun Ekonomi Desa Berkelanjutan',
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -104,10 +83,7 @@ class InfoScreen extends StatelessWidget {
 
                   const Text(
                     'Koperasi Desa hadir sebagai pilar kemandirian ekonomi masyarakat, memberikan akses layanan keuangan yang adil dan transparan.',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      height: 1.5,
-                    ),
+                    style: TextStyle(color: Colors.white70, height: 1.5),
                   ),
                 ],
               ),
@@ -116,39 +92,35 @@ class InfoScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // VISI MISI
-            Row(
-              children: [
-
-                Expanded(
-                  child: buildCard(
-                    icon: Icons.visibility,
-                    title: 'Visi Kami',
-                    content:
-                        'Menjadi koperasi modern berbasis teknologi untuk kesejahteraan masyarakat desa.',
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: buildCard(
+                      icon: Icons.visibility,
+                      title: 'Visi Kami',
+                      content:
+                          'Menjadi koperasi modern berbasis teknologi untuk kesejahteraan masyarakat desa.',
+                    ),
                   ),
-                ),
-
-                const SizedBox(width: 16),
-
-                Expanded(
-                  child: buildCard(
-                    icon: Icons.rocket_launch,
-                    title: 'Misi Utama',
-                    content:
-                        'Digitalisasi layanan dan pemberdayaan UMKM lokal.',
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: buildCard(
+                      icon: Icons.rocket_launch,
+                      title: 'Misi Utama',
+                      content:
+                          'Digitalisasi layanan dan pemberdayaan UMKM lokal.',
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             const SizedBox(height: 28),
 
             const Text(
               'Struktur Organisasi',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 16),
@@ -159,7 +131,6 @@ class InfoScreen extends StatelessWidget {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-
                   buildPersonCard(
                     name: 'Ir. Ahmad Subarjo',
                     position: 'Ketua Umum',
@@ -170,10 +141,7 @@ class InfoScreen extends StatelessWidget {
                     position: 'Bendahara',
                   ),
 
-                  buildPersonCard(
-                    name: 'Budi Santoso',
-                    position: 'Sekretaris',
-                  ),
+                  buildPersonCard(name: 'Budi Santoso', position: 'Sekretaris'),
                 ],
               ),
             ),
@@ -182,10 +150,7 @@ class InfoScreen extends StatelessWidget {
 
             const Text(
               'Kontak & Lokasi',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 16),
@@ -195,12 +160,14 @@ class InfoScreen extends StatelessWidget {
 
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: const Color(0xffE4BEBA),
+                ),
               ),
 
               child: Column(
                 children: [
-
                   Container(
                     height: 180,
                     decoration: BoxDecoration(
@@ -211,7 +178,7 @@ class InfoScreen extends StatelessWidget {
                     child: const Center(
                       child: Icon(
                         Icons.map,
-                        size: 80,
+                        size: 70,
                         color: Colors.grey,
                       ),
                     ),
@@ -227,19 +194,11 @@ class InfoScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  buildInfoRow(
-                    Icons.call,
-                    'Telepon',
-                    '(0274) 123-456',
-                  ),
+                  buildInfoRow(Icons.call, 'Telepon', '(0274) 123-456'),
 
                   const SizedBox(height: 16),
 
-                  buildInfoRow(
-                    Icons.mail,
-                    'Email',
-                    'halo@kopdesa.id',
-                  ),
+                  buildInfoRow(Icons.mail, 'Email', 'halo@kopdesa.id'),
                 ],
               ),
             ),
@@ -262,7 +221,6 @@ class InfoScreen extends StatelessWidget {
 
               child: Column(
                 children: [
-
                   const Icon(
                     Icons.verified_user,
                     color: Color(0xffAF101A),
@@ -273,10 +231,7 @@ class InfoScreen extends StatelessWidget {
 
                   const Text(
                     'Legalitas Terjamin',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 12),
@@ -284,20 +239,16 @@ class InfoScreen extends StatelessWidget {
                   const Text(
                     'Koperasi Desa telah terdaftar resmi dan diawasi oleh Kementerian Koperasi dan UKM.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.black54,
-                      height: 1.5,
-                    ),
+                    style: TextStyle(color: Colors.black54, height: 1.5),
                   ),
 
                   const SizedBox(height: 20),
 
-                  Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceEvenly,
-
+                  Wrap(
+                    alignment: WrapAlignment.spaceEvenly,
+                    spacing: 32,
+                    runSpacing: 12,
                     children: [
-
                       Column(
                         children: const [
                           Text(
@@ -308,9 +259,7 @@ class InfoScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 4),
-                          Text(
-                            '182/BH/M.KUKM/2021',
-                          ),
+                          Text('182/BH/M.KUKM/2021'),
                         ],
                       ),
 
@@ -324,9 +273,7 @@ class InfoScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 4),
-                          Text(
-                            '912000345678',
-                          ),
+                          Text('912000345678'),
                         ],
                       ),
                     ],
@@ -342,73 +289,41 @@ class InfoScreen extends StatelessWidget {
 
       // BOTTOM NAVIGATION
       bottomNavigationBar: BottomNavigationBar(
-      currentIndex: 2,
-      selectedItemColor: const Color(0xffAF101A),
-      unselectedItemColor: Colors.grey,
+        currentIndex: 2,
+        selectedItemColor: const Color(0xffAF101A),
+        unselectedItemColor: Colors.grey,
 
-      onTap: (index) {
-
-        if (index == 0) {
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const DashboardScreen(),
-            ),
-          );
-
-        } else if (index == 1) {
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const TransactionHistoryScreen(),
-            ),
-          );
-
-        } else if (index == 2) {
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const InfoScreen(),
-            ),
-          );
-
-        } else if (index == 3) {
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const ProfileScreen(),
-            ),
-          );
-
-        }
-
-      },
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            );
+          } else if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const TransactionHistoryScreen(),
+              ),
+            );
+          } else if (index == 2) {
+            return; //Sudah di halaman info
+          } else if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
+          }
+        },
 
         items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Beranda',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Riwayat',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.info), label: 'Info'),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            label: 'Info',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Akun',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
         ],
       ),
     );
@@ -419,27 +334,24 @@ class InfoScreen extends StatelessWidget {
     required String title,
     required String content,
   }) {
-
     return Container(
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xffE4BEBA),
+        ),
       ),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           CircleAvatar(
-            backgroundColor:
-                const Color(0xffAF101A).withAlpha(26), // 0.1 * 255
+            backgroundColor: const Color(0xffAF101A).withAlpha(26), // 0.1 * 255
 
-            child: Icon(
-              icon,
-              color: const Color(0xffAF101A),
-            ),
+            child: Icon(icon, color: const Color(0xffAF101A)),
           ),
 
           const SizedBox(height: 14),
@@ -448,7 +360,7 @@ class InfoScreen extends StatelessWidget {
             title,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 18,
+              fontSize: 16,
             ),
           ),
 
@@ -456,8 +368,11 @@ class InfoScreen extends StatelessWidget {
 
           Text(
             content,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: Colors.black54,
+              fontSize: 13,
               height: 1.5,
             ),
           ),
@@ -466,32 +381,26 @@ class InfoScreen extends StatelessWidget {
     );
   }
 
-  Widget buildPersonCard({
-    required String name,
-    required String position,
-  }) {
-
+  Widget buildPersonCard({required String name, required String position}) {
     return Container(
-      width: 180,
+      width: 200,
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xffE4BEBA),
+        ),
       ),
 
       child: Column(
         children: [
-
           const CircleAvatar(
             radius: 40,
             backgroundColor: Colors.grey,
-            child: Icon(
-              Icons.person,
-              size: 40,
-              color: Colors.white,
-            ),
+            child: Icon(Icons.person, size: 40, color: Colors.white),
           ),
 
           const SizedBox(height: 16),
@@ -499,63 +408,35 @@ class InfoScreen extends StatelessWidget {
           Text(
             name,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
 
           const SizedBox(height: 8),
 
-          Text(
-            position,
-            style: const TextStyle(
-              color: Color(0xffAF101A),
-            ),
-          ),
+          Text(position, style: const TextStyle(color: Color(0xffAF101A))),
         ],
       ),
     );
   }
 
-  Widget buildInfoRow(
-    IconData icon,
-    String title,
-    String value,
-  ) {
-
+  Widget buildInfoRow(IconData icon, String title, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        Icon(
-          icon,
-          color: const Color(0xffAF101A),
-        ),
+        Icon(icon, color: const Color(0xffAF101A)),
 
         const SizedBox(width: 12),
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-
-              Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
 
               const SizedBox(height: 4),
 
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Colors.black54,
-                ),
-              ),
+              Text(value, style: const TextStyle(color: Colors.black54)),
             ],
           ),
         ),
