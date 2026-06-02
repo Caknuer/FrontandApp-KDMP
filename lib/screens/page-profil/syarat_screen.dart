@@ -67,23 +67,38 @@ class _TermsScreenState extends State<TermsScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE4BEBA)),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFFAF101A)),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
+          Icon(
+            icon,
+            color: const Color(0xFFAF101A),
+            size: 24,
           ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: const TextStyle(
-              color: Colors.black54,
-              fontSize: 13,
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  description,
+                  style: const TextStyle(
+                    color: Colors.black54,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -143,45 +158,48 @@ class _TermsScreenState extends State<TermsScreen> {
             child: Column(
               children: [
                 // Hero
-                Container(
-                  height: 220,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.network(
-                        "https://lh3.googleusercontent.com/aida-public/AB6AXuA3FgiAhzh_ZII51A_2w1cwFNfHJdSCVLiWcMVvHgpfIP4MkTSsoe6UOQAwDKUWE2TdG6Ix1E0iwAWUkG-hHRm9vWcUv9wTa7A5TEyjxIsG0XOhNp7nuDo7snIfiG_mVSNvsEc9y_dqWZaT_-dWWSKewtzz_C5quPZrJ1hFD_1E20jlUZS2-TClj3GFx5Z0lfFuaKxRKoaQUm-myw-hiZWmVLobp84-qvRg0JAV0ZgrK06Jg5ptjCXRFGI_Uy1oPzlfmVWBrY8dHZIX",
-                        fit: BoxFit.cover,
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withAlpha(166),
-                            ],
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Container(
+                    height: 220,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.network(
+                          "https://lh3.googleusercontent.com/aida-public/AB6AXuA3FgiAhzh_ZII51A_2w1cwFNfHJdSCVLiWcMVvHgpfIP4MkTSsoe6UOQAwDKUWE2TdG6Ix1E0iwAWUkG-hHRm9vWcUv9wTa7A5TEyjxIsG0XOhNp7nuDo7snIfiG_mVSNvsEc9y_dqWZaT_-dWWSKewtzz_C5quPZrJ1hFD_1E20jlUZS2-TClj3GFx5Z0lfFuaKxRKoaQUm-myw-hiZWmVLobp84-qvRg0JAV0ZgrK06Jg5ptjCXRFGI_Uy1oPzlfmVWBrY8dHZIX",
+                          fit: BoxFit.cover,
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withAlpha(166),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      const Positioned(
-                        left: 16,
-                        right: 16,
-                        bottom: 16,
-                        child: Text(
-                          'Panduan Keanggotaan & Layanan',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
+                        const Positioned(
+                          left: 16,
+                          right: 16,
+                          bottom: 16,
+                          child: Text(
+                            'Panduan Keanggotaan & Layanan',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
 
@@ -219,13 +237,7 @@ class _TermsScreenState extends State<TermsScreen> {
                       sectionTitle("2. Keanggotaan"),
                       const SizedBox(height: 16),
 
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 1.1,
+                      Column(
                         children: [
                           infoCard(
                             icon: Icons.badge_outlined,
@@ -233,6 +245,9 @@ class _TermsScreenState extends State<TermsScreen> {
                             description:
                                 "Warga dengan KTP sah dan menyetujui AD/ART koperasi.",
                           ),
+
+                          const SizedBox(height: 12),
+
                           infoCard(
                             icon: Icons.verified_user_outlined,
                             title: "Status Aktif",
@@ -400,7 +415,7 @@ class _TermsScreenState extends State<TermsScreen> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  const Color(0xFFAF101A),
+                                  const Color.fromARGB(255, 165, 56, 64),
                             ),
                             onPressed: () {
                               setState(() {
@@ -416,29 +431,6 @@ class _TermsScreenState extends State<TermsScreen> {
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 3,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: "Beranda",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            label: "Simpanan",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payments_outlined),
-            label: "Pinjaman",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Akun",
           ),
         ],
       ),
