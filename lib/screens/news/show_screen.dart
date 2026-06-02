@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'index_screen.dart';
 
-class DetailBeritaPage extends StatelessWidget {
-  const DetailBeritaPage({super.key});
+class DetailBeritaScreen extends StatelessWidget {
+  const DetailBeritaScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,9 @@ class DetailBeritaPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.share),
             color: Colors.black87,
-            onPressed: () {},
+            onPressed: () async {
+              await Share.share('Check out this article: https://example.com/article');
+            },
           ),
         ],
       ),
@@ -247,17 +251,23 @@ class DetailBeritaPage extends StatelessWidget {
                           ),
                         ),
                         TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'Lihat Semua',
-                          ),
-                        ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const BeritaPage(),
+                              ),
+                            );
+                          },
+                          child: const Text('Lihat Semua'),
+                        )
                       ],
                     ),
 
                     const SizedBox(height: 15),
 
                     _relatedItem(
+                      context,
                       category: 'Kegiatan',
                       title:
                           'Laporan Rapat Anggota Tahunan Koperasi Desa 2023',
@@ -267,6 +277,7 @@ class DetailBeritaPage extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     _relatedItem(
+                      context,
                       category: 'Edukasi',
                       title:
                           'Panduan Lengkap Mengajukan Pinjaman KUR di Koperasi',
@@ -284,78 +295,81 @@ class DetailBeritaPage extends StatelessWidget {
     );
   }
 
-  static Widget _relatedItem({
+  static Widget _relatedItem(BuildContext context,{
     required String category,
     required String title,
     required String date,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.grey.shade200,
+    return InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const DetailBeritaScreen(),
+            ),
+          );
+        },
+        child: Container(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(12),
+              child: Image.network(
+                'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+                width: 90,
+                height: 90,
+                fit: BoxFit.cover,
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    category.toUpperCase(),
+                    style: const TextStyle(
+                      color: Color(0xffAF101A),
+                      fontWeight:
+                          FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow:
+                        TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight:
+                          FontWeight.w600,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    date,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius:
-                BorderRadius.circular(12),
-            child: Image.network(
-              'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-              width: 90,
-              height: 90,
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category.toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xffAF101A),
-                    fontWeight:
-                        FontWeight.bold,
-                    fontSize: 11,
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow:
-                      TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight:
-                        FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  date,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      )
     );
   }
 }

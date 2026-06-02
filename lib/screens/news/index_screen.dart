@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
+import 'show_screen.dart';
 
-class BeritaPage extends StatelessWidget {
+class BeritaPage extends StatefulWidget {
   const BeritaPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    final primaryColor = const Color(0xffAF101A);
+  static const Color primaryColor =Color(0xffAF101A);
 
+  @override
+  State<BeritaPage> createState() => _BeritaPageState();
+}
+
+class _BeritaPageState extends State<BeritaPage> {
+  String selectedCategory = 'Semua';
+
+  final TextEditingController searchController =
+      TextEditingController();
+      
+  @override    
+  Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: const Color(0xffFCF9F8),
 
@@ -23,19 +35,35 @@ class BeritaPage extends StatelessWidget {
         title: const Text(
           'Berita',
           style: TextStyle(
-            color: Colors.black87,
+            color: BeritaPage.primaryColor,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.search,
-              color: Color(0xffAF101A),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(70),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              16,
+              0,
+              16,
+              12,
             ),
-            onPressed: () {},
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari berita...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
           ),
-        ],
+        ),
       ),
 
       body: SingleChildScrollView(
@@ -48,26 +76,10 @@ class BeritaPage extends StatelessWidget {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _categoryChip(
-                    'Semua',
-                    true,
-                    primaryColor,
-                  ),
-                  _categoryChip(
-                    'Kegiatan',
-                    false,
-                    primaryColor,
-                  ),
-                  _categoryChip(
-                    'Edukasi',
-                    false,
-                    primaryColor,
-                  ),
-                  _categoryChip(
-                    'Pengumuman',
-                    false,
-                    primaryColor,
-                  ),
+                  _categoryChip('Semua'),
+                  _categoryChip('Kegiatan'),
+                  _categoryChip('Edukasi'),
+                  _categoryChip('Pengumuman'),
                 ],
               ),
             ),
@@ -75,7 +87,7 @@ class BeritaPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             // LIST BERITA
-            _newsCard(
+            _newsCard(context,
               kategori: 'Edukasi',
               judul:
                   'Tips Mengelola Simpanan Sukarela dengan Bijak',
@@ -88,7 +100,7 @@ class BeritaPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            _newsCard(
+            _newsCard(context,
               kategori: 'Kegiatan',
               judul:
                   'Penyaluran Modal Usaha Tahap II bagi UMKM',
@@ -102,6 +114,7 @@ class BeritaPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             _newsCard(
+              context,
               kategori: 'Pengumuman',
               judul:
                   'Jadwal Libur Operasional Kantor Koperasi',
@@ -117,27 +130,35 @@ class BeritaPage extends StatelessWidget {
     );
   }
 
-  Widget _categoryChip(
-    String title,
-    bool active,
-    Color primaryColor,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: Chip(
+  Widget _categoryChip(String title) {
+    final bool isSelected =
+        selectedCategory == title;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ChoiceChip(
         label: Text(title),
+        selected: isSelected,
+        selectedColor:
+            BeritaPage.primaryColor,
         backgroundColor:
-            active ? primaryColor : const Color(0xffEAE7E7),
+            const Color(0xffEAE7E7),
         labelStyle: TextStyle(
-          color:
-              active ? Colors.white : Colors.black54,
+          color: isSelected
+              ? Colors.white
+              : Colors.black54,
           fontWeight: FontWeight.w600,
         ),
+        onSelected: (value) {
+          setState(() {
+            selectedCategory = title;
+          });
+        },
       ),
     );
   }
 
-  Widget _newsCard({
+  Widget _newsCard(BuildContext context,{
     required String kategori,
     required String judul,
     required String deskripsi,
@@ -147,7 +168,13 @@ class BeritaPage extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () {
-        // buka detail berita
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                const DetailBeritaScreen(),
+          ),
+        );
       },
       child: Container(
         padding: const EdgeInsets.all(12),
