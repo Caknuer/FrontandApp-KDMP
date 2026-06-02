@@ -4,17 +4,27 @@ import '../riwayat_screen.dart';
 import '../info_screen.dart';
 import 'editprofil_screen.dart';
 import 'keamanan_screen.dart';
-import 'pusatbantuan_screen.dart';
 import 'syarat_screen.dart';
+import 'detailprofil_screen.dart';
+import 'dart:io';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() =>
+      _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  File? profileImage;
+
+  static const Color primaryColor = Color(0xFFAF101A);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffFCF9F8),
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -34,15 +44,13 @@ class ProfileScreen extends StatelessWidget {
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.notifications,
-              color: Colors.black54,
-            ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: primaryColor,
           ),
-        ],
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
 
       body: SingleChildScrollView(
@@ -53,196 +61,110 @@ class ProfileScreen extends StatelessWidget {
           children: [
 
             // PROFILE
-            Container(
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DetailProfilScreen(
+                      profileImage: profileImage,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
               padding: const EdgeInsets.all(16),
-
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(13), // 0.05 * 255
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-
-              child: Row(
-                children: [
-
-                  Stack(
-                    children: [
-
-                      const CircleAvatar(
-                        radius: 40,
-                        backgroundImage: NetworkImage(
-                          'https://i.pravatar.cc/300',
-                        ),
-                      ),
-
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-
-                          decoration: const BoxDecoration(
-                            color: Color(0xffAF101A),
-                            shape: BoxShape.circle,
-                          ),
-
-                          child: const Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(width: 16),
-
-                  const Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-
-                    children: [
-
-                      Text(
-                        'Budi Santoso',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      SizedBox(height: 4),
-
-                      Text(
-                        'Member ID: ID-98231',
-                        style: TextStyle(
-                          color: Colors.grey,
-                        ),
-                      ),
-
-                      SizedBox(height: 8),
-
-                      Chip(
-                        backgroundColor:
-                            Color(0xffFFDAD6),
-
-                        label: Text(
-                          'ANGGOTA AKTIF',
-                          style: TextStyle(
-                            color: Color(0xff930010),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // TOTAL SIMPANAN
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xffAF101A),
-                    Color(0xff8B0D15),
-                  ],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(13),
+                  blurRadius: 10,
                 ),
-                borderRadius: BorderRadius.circular(24),
+              ],
               ),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
-                children: [
-
-                  const Text(
-                    'Total Simpanan',
-                    style: TextStyle(
-                      color: Colors.white70,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  const Text(
-                    'Rp 12.450.000',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  Center(
-                    child: SizedBox(
-                      width: 180,
-                      height: 50,
-
-                      child: ElevatedButton(
-                        onPressed: () {
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  const TransactionHistoryScreen(),
+              child: 
+                 Row(
+                  children: [
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: Colors.grey.shade300,
+                          backgroundImage: profileImage != null
+                              ? FileImage(profileImage!)
+                              : null,
+                          child: profileImage == null
+                              ? Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.grey.shade600,
+                                )
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Color(0xffAF101A),
+                              shape: BoxShape.circle,
                             ),
-                          );
-
-                        },
-
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(14),
+                            child: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                           ),
                         ),
+                      ],
+                    ),
 
-                        child: const Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
+                    const SizedBox(width: 16),
 
-                          children: [
-
-                            Icon(
-                              Icons.receipt_long,
-                              color: Color(0xffAF101A),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Budi Santoso',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
-
-                            SizedBox(width: 8),
-
-                            Text(
-                              'Riwayat',
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Member ID: ID-98231',
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Chip(
+                            backgroundColor: Color(0xffFFDAD6),
+                            label: Text(
+                              'ANGGOTA AKTIF',
                               style: TextStyle(
-                                color: Color(0xffAF101A),
+                                color: Color(0xff930010),
                                 fontWeight: FontWeight.bold,
+                                fontSize: 12,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+
+                    const Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey,
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -261,37 +183,30 @@ class ProfileScreen extends StatelessWidget {
             buildMenuItem(
               icon: Icons.person,
               title: 'Edit Profil',
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const EditProfileScreen(),
                   ),
                 );
+
+                if (result != null) {
+                  setState(() {
+                    profileImage = result;
+                  });
+                }
               },
             ),
 
             buildMenuItem(
               icon: Icons.lock,
-              title: 'Keamanan & Kata Sandi',
+              title: 'Kata Sandi',
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const SecurityScreen(),
-                  ),
-                );
-              },
-            ),
-
-            buildMenuItem(
-              icon: Icons.help,
-              title: 'Pusat Bantuan',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const HelpScreen(),
                   ),
                 );
               },
