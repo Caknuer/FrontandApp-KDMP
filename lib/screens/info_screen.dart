@@ -16,10 +16,8 @@ class InfoScreen extends StatelessWidget {
         elevation: 0,
         title: const Row(
           children: [
-            Icon(Icons.account_balance, color: Color(0xffAF101A)),
-            SizedBox(width: 10),
             Text(
-              'Koperasi Desa',
+              'Informasi Koperasi Desa',
               style: TextStyle(
                 color: Color(0xffAF101A),
                 fontWeight: FontWeight.bold,

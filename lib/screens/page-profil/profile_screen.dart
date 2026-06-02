@@ -20,8 +20,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   File? profileImage;
 
-  static const Color primaryColor = Color(0xFFAF101A);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,11 +29,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         title: const Row(
           children: [
-            Icon(
-              Icons.account_balance,
-              color: Color(0xffAF101A),
-            ),
-            SizedBox(width: 10),
             Text(
               'Profil Saya',
               style: TextStyle(
@@ -44,13 +37,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ],
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: primaryColor,
-          ),
-          onPressed: () => Navigator.pop(context),
         ),
       ),
 
