@@ -136,7 +136,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
 
                 return GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (_) =>

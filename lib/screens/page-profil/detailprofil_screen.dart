@@ -41,7 +41,7 @@ class DetailProfilScreen extends StatelessWidget {
               color: primaryColor,
             ),
             onPressed: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const EditProfileScreen(),

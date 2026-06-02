@@ -95,7 +95,7 @@ class _TransactionHistoryScreenState
 
         if (index == 0) {
 
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (_) => const DashboardScreen(),
@@ -104,16 +104,11 @@ class _TransactionHistoryScreenState
 
         } else if (index == 1) {
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const TransactionHistoryScreen(),
-            ),
-          );
+          return;
 
         } else if (index == 2) {
 
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (_) => const InfoScreen(),
@@ -122,7 +117,7 @@ class _TransactionHistoryScreenState
 
         } else if (index == 3) {
 
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (_) => const ProfileScreen(),

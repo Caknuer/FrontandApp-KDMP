@@ -52,7 +52,7 @@ class DashboardScreen extends StatelessWidget {
 
               IconButton(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
@@ -309,7 +309,7 @@ class DashboardScreen extends StatelessWidget {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
@@ -327,7 +327,7 @@ class DashboardScreen extends StatelessWidget {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
@@ -345,7 +345,7 @@ class DashboardScreen extends StatelessWidget {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
@@ -363,7 +363,7 @@ class DashboardScreen extends StatelessWidget {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
@@ -485,19 +485,12 @@ class DashboardScreen extends StatelessWidget {
 
           if (index == 0) {
 
-            Navigator.push(
-              context,
-
-              MaterialPageRoute(
-                builder: (_) =>
-                    const DashboardScreen(),
-              ),
-            );
+            return;
 
           } else if (index ==
               1) {
 
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
 
               MaterialPageRoute(
@@ -509,7 +502,7 @@ class DashboardScreen extends StatelessWidget {
           } else if (index ==
               2) {
 
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
 
               MaterialPageRoute(
@@ -521,7 +514,7 @@ class DashboardScreen extends StatelessWidget {
           } else if (index ==
               3) {
 
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
 
               MaterialPageRoute(

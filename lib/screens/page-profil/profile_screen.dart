@@ -65,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (_) => DetailProfilScreen(
@@ -185,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.person,
               title: 'Edit Profil',
               onTap: () async {
-                final result = await Navigator.push(
+                final result = await Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const EditProfileScreen(),
@@ -204,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.lock,
               title: 'Kata Sandi',
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const SecurityScreen(),
@@ -217,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.description,
               title: 'Syarat & Ketentuan',
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const TermsScreen(),
@@ -233,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 55,
 
               child: OutlinedButton.icon(
-                onPressed: () {Navigator.push(
+                onPressed: () {Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const LoginScreen(),
@@ -290,7 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         if (index == 0) {
 
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (_) => const DashboardScreen(),
@@ -299,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         } else if (index == 1) {
 
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (_) => const TransactionHistoryScreen(),
@@ -308,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         } else if (index == 2) {
 
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (_) => const InfoScreen(),

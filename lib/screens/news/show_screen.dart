@@ -252,7 +252,7 @@ class DetailBeritaScreen extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => const BeritaPage(),
@@ -303,7 +303,7 @@ class DetailBeritaScreen extends StatelessWidget {
     return InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (_) => const DetailBeritaScreen(),
