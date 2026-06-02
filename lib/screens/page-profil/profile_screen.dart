@@ -7,6 +7,7 @@ import 'keamanan_screen.dart';
 import 'syarat_screen.dart';
 import 'detailprofil_screen.dart';
 import 'dart:io';
+import '../login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -232,7 +233,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 55,
 
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () {Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LoginScreen(),
+                  ),
+                );},
 
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(
