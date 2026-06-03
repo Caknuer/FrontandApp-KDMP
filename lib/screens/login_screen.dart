@@ -592,7 +592,7 @@ class _LoginScreenState
                           TextButton(
                             onPressed: () {
 
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
 
                                 MaterialPageRoute(

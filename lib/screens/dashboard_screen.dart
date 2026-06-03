@@ -52,7 +52,7 @@ class DashboardScreen extends StatelessWidget {
 
               IconButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
@@ -309,7 +309,7 @@ class DashboardScreen extends StatelessWidget {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
@@ -327,7 +327,7 @@ class DashboardScreen extends StatelessWidget {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
@@ -345,7 +345,7 @@ class DashboardScreen extends StatelessWidget {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
@@ -363,7 +363,7 @@ class DashboardScreen extends StatelessWidget {
 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>

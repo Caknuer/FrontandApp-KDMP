@@ -168,7 +168,7 @@ class _BeritaPageState extends State<BeritaPage> {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () {
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>

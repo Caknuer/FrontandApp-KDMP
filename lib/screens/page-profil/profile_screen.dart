@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => DetailProfilScreen(
@@ -171,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.person,
               title: 'Edit Profil',
               onTap: () async {
-                final result = await Navigator.pushReplacement(
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const EditProfileScreen(),
@@ -190,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.lock,
               title: 'Kata Sandi',
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const SecurityScreen(),
@@ -203,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.description,
               title: 'Syarat & Ketentuan',
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const TermsScreen(),
