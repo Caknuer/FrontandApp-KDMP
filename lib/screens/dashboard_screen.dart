@@ -7,13 +7,23 @@ import 'news/index_screen.dart';
 import 'pengumuman/index_screen.dart';
 import 'tarik_screen.dart';
 import 'notifikasi_screen.dart';
+import 'news/show_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
-  static const Color primaryColor =
-      Color(0xffAF101A);
+  static const Color primaryColor = Color(0xffAF101A);
+  static const Color secondaryColor = Color(0xff8B0D15);
 
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  bool hasNotification = true;
+  String namaUser = 'Budi';
+  String saldoUser = '12.450.000';
+  
   @override
   Widget build(BuildContext context) {
 
@@ -30,7 +40,7 @@ class DashboardScreen extends StatelessWidget {
 
             Icon(
               Icons.account_balance,
-              color: primaryColor,
+              color: DashboardScreen.primaryColor,
             ),
 
             SizedBox(width: 10),
@@ -38,7 +48,7 @@ class DashboardScreen extends StatelessWidget {
             Text(
               'Koperasi Desa',
               style: TextStyle(
-                color: primaryColor,
+                color: DashboardScreen.primaryColor,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -67,21 +77,19 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
 
-              Positioned(
-                top: 14,
-                right: 14,
-
-                child: Container(
-                  width: 10,
-                  height: 10,
-
-                  decoration:
-                      const BoxDecoration(
-                    color: primaryColor,
-                    shape: BoxShape.circle,
+                if (hasNotification)
+                  Positioned(
+                    top: 14,
+                    right: 14,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: DashboardScreen.primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
-                ),
-              ),
             ],
           ),
 
@@ -113,12 +121,11 @@ class DashboardScreen extends StatelessWidget {
 
           children: [
 
-            const Text(
-              'Halo, Ahmad',
-              style: TextStyle(
+            Text(
+              'Halo, $namaUser',
+              style: const TextStyle(
                 fontSize: 30,
-                fontWeight:
-                    FontWeight.bold,
+                fontWeight: FontWeight.bold,
               ),
             ),
 
@@ -142,23 +149,18 @@ class DashboardScreen extends StatelessWidget {
               width: double.infinity,
               padding:
                   const EdgeInsets.all(25),
-
               decoration: BoxDecoration(
                 borderRadius:
-                    BorderRadius.circular(
-                  30,
-                ),
-
+                    BorderRadius.circular(30,),
                 gradient:
                     const LinearGradient(
                   colors: [
-                    Color(0xffAF101A),
-                    Color(0xff8B0D15),
+                    DashboardScreen.primaryColor,
+                    DashboardScreen.secondaryColor,
                   ],
 
                   begin: Alignment
                       .topLeft,
-
                   end: Alignment
                       .bottomRight,
                 ),
@@ -166,57 +168,38 @@ class DashboardScreen extends StatelessWidget {
 
               child: Stack(
                 children: [
-
                   Positioned(
                     right: -30,
                     top: -30,
-
                     child: Container(
                       width: 120,
                       height: 120,
-
                       decoration:
                           BoxDecoration(
                         color: Colors.white
                             .withAlpha(
                           15,
                         ),
-
                         shape:
                             BoxShape.circle,
                       ),
                     ),
                   ),
-
                   Column(
                     crossAxisAlignment:
                         CrossAxisAlignment
                             .start,
-
                     children: [
-
                       Row(
                         mainAxisAlignment:
                             MainAxisAlignment
                                 .spaceBetween,
-
-                        children: const [
-
-                          Text(
+                        children: [
+                          const Text(
                             'Total Saldo Simpanan',
                             style: TextStyle(
-                              color:
-                                  Colors
-                                      .white70,
+                              color: Colors.white70,
                             ),
-                          ),
-
-                          Icon(
-                            Icons
-                                .visibility_outlined,
-                            color:
-                                Colors
-                                    .white70,
                           ),
                         ],
                       ),
@@ -230,46 +213,31 @@ class DashboardScreen extends StatelessWidget {
                             CrossAxisAlignment
                                 .end,
 
-                        children: const [
-
-                          Padding(
-                            padding:
-                                EdgeInsets.only(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(
                               bottom: 6,
                             ),
-
                             child: Text(
                               'Rp',
-                              style:
-                                  TextStyle(
-                                color: Colors
-                                    .white70,
-
-                                fontSize:
-                                    20,
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 20,
                               ),
                             ),
                           ),
 
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
 
                           Text(
-                            '12.450.000',
-                            style:
-                                TextStyle(
-                              color:
-                                  Colors
-                                      .white,
-
-                              fontSize:
-                                  34,
-
-                              fontWeight:
-                                  FontWeight
-                                      .bold,
+                            saldoUser,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
+                        ]
                       ),
 
                       const SizedBox(
@@ -280,6 +248,7 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
+            
 
             const SizedBox(height: 35),
 
@@ -321,9 +290,8 @@ class DashboardScreen extends StatelessWidget {
                     Icons.account_balance_wallet,
                     'Simpan',
                     const Color(0xffFDECEC),
-                    primaryColor,
+                    DashboardScreen.primaryColor,),
                   ),
-                ),
 
                 GestureDetector(
                   onTap: () {
@@ -339,7 +307,7 @@ class DashboardScreen extends StatelessWidget {
                     Icons.payments,
                     'Tarik',
                     const Color(0xffECEFF8),
-                    Colors.blueGrey,
+                    DashboardScreen.primaryColor,
                   ),
                 ),
 
@@ -357,7 +325,7 @@ class DashboardScreen extends StatelessWidget {
                     Icons.newspaper,
                     'Berita',
                     const Color(0xffF4F1EE),
-                    Colors.brown,
+                    DashboardScreen.primaryColor,
                   ),
                 ),
 
@@ -375,7 +343,7 @@ class DashboardScreen extends StatelessWidget {
                     Icons.campaign,
                     'Pengumuman',
                     const Color(0xffFCECEC),
-                    Colors.red,
+                    DashboardScreen.primaryColor,
                   ),
                 ),
               ],
@@ -411,13 +379,20 @@ class DashboardScreen extends StatelessWidget {
                 ),
 
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BeritaPage(),
+                      ),
+                    );
+                  },
 
                   child: const Text(
                     'Lihat Semua',
                     style: TextStyle(
                       color:
-                          primaryColor,
+                          Color(0xffAF101A),
                     ),
                   ),
                 ),
@@ -428,17 +403,18 @@ class DashboardScreen extends StatelessWidget {
 
             modernNewsCard(
               category: 'Acara',
-              categoryColor:
-                  primaryColor,
-
-              title:
-                  'Rapat Tahunan Anggota 2024',
-
-              subtitle:
-                  'Bahasan strategis perkembangan koperasi tahun ini.',
-
-              image:
-                  'assets/images/register.png',
+              categoryColor:  DashboardScreen.primaryColor,
+              title: 'Rapat Tahunan Anggota 2024',
+              subtitle: 'Bahasan strategis perkembangan koperasi tahun ini.',
+              image: 'assets/images/register.png',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DetailBeritaScreen(),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 15),
@@ -446,7 +422,7 @@ class DashboardScreen extends StatelessWidget {
             modernNewsCard(
               category: 'Program',
               categoryColor:
-                  Colors.blueGrey,
+                  DashboardScreen.primaryColor,
 
               title:
                   'Pinjaman Modal Usaha',
@@ -456,6 +432,14 @@ class DashboardScreen extends StatelessWidget {
 
               image:
                   'assets/images/register.png',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DetailBeritaScreen(),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 120),
@@ -470,29 +454,18 @@ class DashboardScreen extends StatelessWidget {
       bottomNavigationBar:
           BottomNavigationBar(
         currentIndex: 0,
-
-        selectedItemColor:
-            primaryColor,
-
-        unselectedItemColor:
-            Colors.grey,
-
+        selectedItemColor:DashboardScreen.primaryColor,
+        unselectedItemColor:Colors.grey,
         type:
             BottomNavigationBarType
                 .fixed,
-
         onTap: (index) {
-
           if (index == 0) {
-
             return;
-
           } else if (index ==
               1) {
-
             Navigator.pushReplacement(
               context,
-
               MaterialPageRoute(
                 builder: (_) =>
                     const TransactionHistoryScreen(),
@@ -613,110 +586,118 @@ class DashboardScreen extends StatelessWidget {
     required String title,
     required String subtitle,
     required String image,
+    VoidCallback? onTap,
   }) {
 
-    return Container(
-      padding: const EdgeInsets.all(15),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(15),
 
-      decoration: BoxDecoration(
-        color: Colors.white,
+          decoration: BoxDecoration(
+            color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          24,
-        ),
-      ),
-
-      child: Row(
-        children: [
-
-          ClipRRect(
             borderRadius:
                 BorderRadius.circular(
-              18,
-            ),
-
-            child: Image.asset(
-              image,
-
-              width: 85,
-              height: 85,
-
-              fit: BoxFit.cover,
+              24,
             ),
           ),
 
-          const SizedBox(width: 15),
+          child: Row(
+            children: [
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
-
-              children: [
-
-                Text(
-                  category.toUpperCase(),
-
-                  style: TextStyle(
-                    color:
-                        categoryColor,
-
-                    fontSize: 11,
-
-                    fontWeight:
-                        FontWeight
-                            .bold,
-                  ),
+              ClipRRect(
+                borderRadius:
+                    BorderRadius.circular(
+                  18,
                 ),
 
-                const SizedBox(
-                  height: 6,
+                child: Image.asset(
+                  image,
+
+                  width: 85,
+                  height: 85,
+
+                  fit: BoxFit.cover,
                 ),
+              ),
 
-                Text(
-                  title,
+              const SizedBox(width: 15),
 
-                  maxLines: 2,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment
+                          .start,
 
-                  overflow:
-                      TextOverflow
-                          .ellipsis,
+                  children: [
 
-                  style:
-                      const TextStyle(
-                    fontSize: 16,
-                    fontWeight:
-                        FontWeight
-                            .bold,
-                  ),
+                    Text(
+                      category.toUpperCase(),
+
+                      style: TextStyle(
+                        color:
+                            categoryColor,
+
+                        fontSize: 11,
+
+                        fontWeight:
+                            FontWeight
+                                .bold,
+                      ),
+                    ),
+
+                    const SizedBox(
+                      height: 6,
+                    ),
+
+                    Text(
+                      title,
+
+                      maxLines: 2,
+
+                      overflow:
+                          TextOverflow
+                              .ellipsis,
+
+                      style:
+                          const TextStyle(
+                        fontSize: 16,
+                        fontWeight:
+                            FontWeight
+                                .bold,
+                      ),
+                    ),
+
+                    const SizedBox(
+                      height: 6,
+                    ),
+
+                    Text(
+                      subtitle,
+
+                      maxLines: 2,
+
+                      overflow:
+                          TextOverflow
+                              .ellipsis,
+
+                      style:
+                          const TextStyle(
+                        color:
+                            Colors.black54,
+                      ),
+                    ),
+                  ],
                 ),
-
-                const SizedBox(
-                  height: 6,
-                ),
-
-                Text(
-                  subtitle,
-
-                  maxLines: 2,
-
-                  overflow:
-                      TextOverflow
-                          .ellipsis,
-
-                  style:
-                      const TextStyle(
-                    color:
-                        Colors.black54,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      )
     );
   }
 }
