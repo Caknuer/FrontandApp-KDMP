@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kdkmp_app/screens/dashboard_screen.dart';
 
 class SetoranBerhasilScreen extends StatelessWidget {
   const SetoranBerhasilScreen({super.key});
@@ -350,80 +351,6 @@ class SetoranBerhasilScreen extends StatelessWidget {
                               const SizedBox(
                                 height: 16,
                               ),
-
-                              // BONUS CARD
-                              Container(
-                                padding:
-                                    const EdgeInsets.all(
-                                  12,
-                                ),
-
-                                decoration:
-                                    BoxDecoration(
-                                  color: const Color(
-                                    0xffFFDAD6,
-                                  ),
-                                  borderRadius:
-                                      BorderRadius
-                                          .circular(
-                                    12,
-                                  ),
-                                ),
-
-                                child: const Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor:
-                                          Colors.white,
-                                      child: Icon(
-                                        Icons.redeem,
-                                        color:
-                                            primaryColor,
-                                      ),
-                                    ),
-
-                                    SizedBox(
-                                      width: 12,
-                                    ),
-
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment
-                                                .start,
-
-                                        children: [
-                                          Text(
-                                            'Koperasi Poin +50',
-                                            style:
-                                                TextStyle(
-                                              fontWeight:
-                                                  FontWeight
-                                                      .bold,
-                                            ),
-                                          ),
-
-                                          Text(
-                                            'Terima kasih telah berkontribusi untuk desa.',
-                                            style:
-                                                TextStyle(
-                                              fontSize:
-                                                  12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    Icon(
-                                      Icons
-                                          .chevron_right,
-                                      color:
-                                          Colors.grey,
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -462,7 +389,14 @@ class SetoranBerhasilScreen extends StatelessWidget {
                         height: 56,
 
                         child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DashboardScreen(),
+                              ),
+                            );
+                          },
 
                           style:
                               ElevatedButton.styleFrom(
@@ -480,12 +414,12 @@ class SetoranBerhasilScreen extends StatelessWidget {
 
                           icon: const Icon(
                             Icons
-                                .account_balance_wallet,
+                                .home_outlined,
                             color: Colors.white,
                           ),
 
                           label: const Text(
-                            'Lihat Saldo',
+                            'Ke Beranda',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight:
