@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'riwayat_screen.dart';
 import 'info_screen.dart';
 import 'page-profil/profile_screen.dart';
-import 'simpanan_screen.dart';
+import 'simpanan/simpanan_screen.dart';
 import 'news/index_screen.dart';
 import 'pengumuman/index_screen.dart';
 import 'tarik_screen.dart';
@@ -123,6 +123,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             Text(
               'Halo, $namaUser',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
