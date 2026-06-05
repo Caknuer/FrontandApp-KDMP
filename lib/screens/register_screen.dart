@@ -79,28 +79,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void register() async {
     if (namaController.text.isEmpty ||
-        nikController.text.isEmpty ||
-        hpController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        alamatController.text.isEmpty ||
-        usernameController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmController.text.isEmpty) {
+          nikController.text.isEmpty ||
+          hpController.text.isEmpty ||
+          emailController.text.isEmpty ||
+          alamatController.text.isEmpty ||
+          usernameController.text.isEmpty ||
+          passwordController.text.isEmpty ||
+          confirmController.text.isEmpty) {
 
-          if (tipeKeanggotaan == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Pilih tipe keanggotaan'),
-              ),
-            );
-            return;
-          }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Semua data wajib diisi'),
+          ),
+        );
+        return;
+      }
 
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Semua data wajib diisi')));
-          return;
-        }
+      if (tipeKeanggotaan == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pilih tipe keanggotaan'),
+          ),
+        );
+        return;
+      }
 
     if (passwordController.text != confirmController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
