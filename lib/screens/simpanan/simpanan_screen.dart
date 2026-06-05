@@ -1,31 +1,5 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  static const Color primaryColor =
-        Color(0xffAF101A);
-        
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Setor Simpanan',
-      theme: ThemeData(
-        fontFamily: 'Plus Jakarta Sans',
-        scaffoldBackgroundColor: const Color(0xFFFCF9F8),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFAF101A),
-        ),
-      ),
-      home: const SetorSimpananPage(),
-    );
-  }
-}
+import 'konfirmasi_setoran_screen.dart';
 
 class SetorSimpananPage extends StatefulWidget {
   const SetorSimpananPage({super.key});
@@ -38,24 +12,63 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
 
-  String selectedJenis = 'Simpanan Wajib';
+  bool sudahBayarPokok = true;
 
-  final List<String> jenisSimpanan = [
-    'Simpanan Pokok',
-    'Simpanan Wajib',
-    'Simpanan Sukarela',
-    'Simpanan Khusus',
-  ];
+  late List<String> jenisSimpanan;
+  String selectedJenis = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    jenisSimpanan = [
+      if (!sudahBayarPokok) 'Simpanan Pokok',
+      'Simpanan Wajib',
+      'Simpanan Sukarela',
+      'Simpanan Khusus',
+    ];
+
+    selectedJenis = jenisSimpanan.first;
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    noteController.dispose();
+    super.dispose();
+  }
+
+  String getKeteranganJenis() {
+    switch (selectedJenis) {
+      case 'Simpanan Pokok':
+        return 'Simpanan pokok hanya dibayarkan satu kali saat menjadi anggota.';
+      case 'Simpanan Wajib':
+        return 'Simpanan wajib dibayarkan setiap bulan.';
+      case 'Simpanan Sukarela':
+        return 'Simpanan sukarela dapat disetor kapan saja.';
+      case 'Simpanan Khusus':
+        return 'Simpanan khusus dapat disetor kapan saja sesuai kebutuhan.';
+      default:
+        return '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: const Color(0xFFFCF9F8),
+
       appBar: AppBar(
         backgroundColor: const Color(0xFFFCF9F8),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          color: const Color(0xFFAF101A),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xFFAF101A),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -65,24 +78,24 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(
-              Icons.account_balance,
-              color: Color(0xFFAF101A),
-            ),
-          )
-        ],
       ),
+
       body: SafeArea(
         child: Stack(
           children: [
             SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                24,
+                16,
+                160,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
+                  // JENIS SIMPANAN
+
                   const Text(
                     'Pilih Jenis Simpanan',
                     style: TextStyle(
@@ -90,7 +103,9 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                       color: Color(0xFF5B403D),
                     ),
                   ),
+
                   const SizedBox(height: 12),
+
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
@@ -119,7 +134,27 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                     ),
                   ),
 
+                  const SizedBox(height: 8),
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF6F3F2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      getKeteranganJenis(),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF5B403D),
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 24),
+
+                  // NOMINAL
 
                   Container(
                     width: double.infinity,
@@ -138,29 +173,30 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+
                         const SizedBox(height: 20),
+
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                'Rp',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            Text(
+                              'Rp',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: width * 0.07,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
+
                             const SizedBox(width: 8),
+
                             Expanded(
                               child: TextField(
                                 controller: amountController,
                                 keyboardType: TextInputType.number,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 28,
+                                  fontSize: width * 0.07,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 decoration: const InputDecoration(
@@ -171,13 +207,11 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                                   border: UnderlineInputBorder(
                                     borderSide: BorderSide(
                                       color: Colors.white30,
-                                      width: 2,
                                     ),
                                   ),
                                   enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
                                       color: Colors.white30,
-                                      width: 2,
                                     ),
                                   ),
                                   focusedBorder: UnderlineInputBorder(
@@ -195,7 +229,22 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                     ),
                   ),
 
+                  const SizedBox(height: 8),
+
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4),
+                    child: Text(
+                      'Minimal setoran Rp 10.000',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 24),
+
+                  // KETERANGAN
 
                   const Text(
                     'Keterangan (Opsional)',
@@ -216,9 +265,6 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                       fillColor: const Color(0xFFF6F3F2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFE4BEBA),
-                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -237,6 +283,8 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                   ),
 
                   const SizedBox(height: 24),
+
+                  // RINCIAN
 
                   const Text(
                     'Rincian Simpanan',
@@ -260,25 +308,41 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                     ),
                     child: Column(
                       children: [
-                        buildSaldoRow(
-                          'Simpanan Pokok',
-                          'Rp 500.000',
-                        ),
-                        const SizedBox(height: 12),
+
+                        if (sudahBayarPokok)
+                          buildSaldoRow(
+                            'Simpanan Pokok',
+                            'Rp 500.000',
+                          ),
+
+                        if (sudahBayarPokok)
+                          const SizedBox(height: 12),
+
                         buildSaldoRow(
                           'Simpanan Wajib',
                           'Rp 1.200.000',
                         ),
+
                         const SizedBox(height: 12),
+
                         buildSaldoRow(
                           'Simpanan Sukarela',
                           'Rp 750.000',
                         ),
+
+                        const SizedBox(height: 12),
+
+                        buildSaldoRow(
+                          'Simpanan Khusus',
+                          'Rp 300.000',
+                        ),
+
                         const Divider(height: 32),
-                        Row(
+
+                        const Row(
                           mainAxisAlignment:
                               MainAxisAlignment.spaceBetween,
-                          children: const [
+                          children: [
                             Text(
                               'Total Saldo',
                               style: TextStyle(
@@ -287,7 +351,7 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                               ),
                             ),
                             Text(
-                              'Rp 2.450.000',
+                              'Rp 2.750.000',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -303,10 +367,12 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
               ),
             ),
 
+            // BUTTON
+
             Positioned(
               left: 16,
               right: 16,
-              bottom: 88,
+              bottom: 24,
               child: SizedBox(
                 height: 56,
                 child: ElevatedButton.icon(
@@ -316,11 +382,20 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const KonfirmasiSetoranScreen(),
+                      ),
+                    );
+                  },
+
                   icon: const Icon(
                     Icons.arrow_forward,
                     color: Colors.white,
                   ),
+
                   label: const Text(
                     'Lanjutkan',
                     style: TextStyle(
@@ -338,9 +413,13 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
     );
   }
 
-  Widget buildSaldoRow(String title, String amount) {
+  Widget buildSaldoRow(
+    String title,
+    String amount,
+  ) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
