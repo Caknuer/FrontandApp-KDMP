@@ -512,24 +512,13 @@ class _KonfirmasiSetoranScreenState
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                color: primaryColor,
-              ),
-
+              const Icon(Icons.info),
               const SizedBox(width: 8),
-
               Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: Text(title),
               ),
-
-              if (trailing != null) trailing,
-            ],
+              trailing,
+            ].whereType<Widget>().toList(),
           ),
 
           const SizedBox(height: 16),

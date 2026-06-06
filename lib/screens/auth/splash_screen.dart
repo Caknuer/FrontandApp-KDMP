@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'splash_screentwo.dart';
+import 'login_screen.dart';
 
 class SplashOne extends StatefulWidget {
   const SplashOne({super.key});
@@ -20,7 +20,7 @@ class _SplashOneState extends State<SplashOne> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const SplashTwo(),
+          builder: (_) => const LoginScreen(),
         ),
       );
 

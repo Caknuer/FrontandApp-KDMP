@@ -7,7 +7,7 @@ import 'keamanan_screen.dart';
 import 'syarat_screen.dart';
 import 'detailprofil_screen.dart';
 import 'dart:io';
-import '../login_screen.dart';
+import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

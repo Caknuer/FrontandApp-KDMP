@@ -5,7 +5,7 @@ import 'page-profil/profile_screen.dart';
 import 'simpanan/simpanan_screen.dart';
 import 'news/index_screen.dart';
 import 'pengumuman/index_screen.dart';
-import 'tarik_screen.dart';
+import 'tarik/tarik_screen.dart';
 import 'notifikasi_screen.dart';
 import 'news/show_screen.dart';
 
@@ -301,7 +301,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            const TarikPage(),
+                            const TarikSimpananScreen(),
                       ),
                     );
                   },

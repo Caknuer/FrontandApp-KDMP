@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
-import 'dashboard_screen.dart';
+import '../dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -650,7 +650,7 @@ class _LoginScreenState
 
                           Flexible(
                             child: Text(
-                              'Terdaftar dan diawasi oleh OJK',
+                              'Terdaftar dan diawasi Dinkop UKM Kabupaten Pasuruan',
 
                               style:
                                   TextStyle(
