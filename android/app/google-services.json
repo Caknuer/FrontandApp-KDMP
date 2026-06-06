@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "205658140405",
+    "project_id": "karsa-27c18",
+    "storage_bucket": "karsa-27c18.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:205658140405:android:dced7142397a9858301fbc",
+        "android_client_info": {
+          "package_name": "com.example.kdkmp_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeWY56wdbroHKArdB1zbLPpxdlf5lm4H8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
