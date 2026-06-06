@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kdkmp_app/screens/dashboard_screen.dart';
+import '../dashboard_screen.dart';
 
 class SetoranBerhasilScreen extends StatelessWidget {
   const SetoranBerhasilScreen({super.key});
@@ -8,16 +8,10 @@ class SetoranBerhasilScreen extends StatelessWidget {
   static const Color primaryColor = Color(0xFFAF101A);
 
   void copyTransactionId(BuildContext context) {
-    Clipboard.setData(
-      const ClipboardData(
-        text: 'TRX-20231024-0091',
-      ),
-    );
+    Clipboard.setData(const ClipboardData(text: 'TRX-20231024-0091'));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('ID transaksi berhasil disalin'),
-      ),
+      const SnackBar(content: Text('ID transaksi berhasil disalin')),
     );
   }
 
@@ -31,28 +25,19 @@ class SetoranBerhasilScreen extends StatelessWidget {
         elevation: 0,
 
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: primaryColor,
-          ),
+          icon: const Icon(Icons.arrow_back, color: primaryColor),
           onPressed: () => Navigator.pop(context),
         ),
 
         title: const Text(
           'Notifikasi',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
 
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 8),
-            child: Icon(
-              Icons.done_all,
-              color: primaryColor,
-            ),
+            child: Icon(Icons.done_all, color: primaryColor),
           ),
         ],
       ),
@@ -103,8 +88,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(18),
 
                               decoration: BoxDecoration(
-                                color: primaryColor
-                                    .withAlpha(50),
+                                color: primaryColor.withAlpha(50),
                                 shape: BoxShape.circle,
                               ),
 
@@ -112,8 +96,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                                 width: 80,
                                 height: 80,
 
-                                decoration:
-                                    const BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: primaryColor,
                                   shape: BoxShape.circle,
                                 ),
@@ -132,8 +115,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                               'Setoran Berhasil',
                               style: TextStyle(
                                 fontSize: 28,
-                                fontWeight:
-                                    FontWeight.bold,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
 
@@ -142,9 +124,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                             const Text(
                               'Dana Anda telah berhasil ditambahkan ke saldo.',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
+                              style: TextStyle(color: Colors.grey),
                             ),
                           ],
                         ),
@@ -154,18 +134,14 @@ class SetoranBerhasilScreen extends StatelessWidget {
                         // NOMINAL
                         Container(
                           width: double.infinity,
-                          padding:
-                              const EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             vertical: 20,
                             horizontal: 16,
                           ),
 
                           decoration: BoxDecoration(
-                            color: const Color(
-                              0xffF6F3F2,
-                            ),
-                            borderRadius:
-                                BorderRadius.circular(16),
+                            color: const Color(0xffF6F3F2),
+                            borderRadius: BorderRadius.circular(16),
                           ),
 
                           child: const Column(
@@ -186,8 +162,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                                 style: TextStyle(
                                   color: primaryColor,
                                   fontSize: 32,
-                                  fontWeight:
-                                      FontWeight.bold,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -202,13 +177,8 @@ class SetoranBerhasilScreen extends StatelessWidget {
 
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(
-                                0xffE4BEBA,
-                              ),
-                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xffE4BEBA)),
                           ),
 
                           child: Column(
@@ -219,59 +189,39 @@ class SetoranBerhasilScreen extends StatelessWidget {
                                     child: Text(
                                       'Rincian Transaksi',
                                       style: TextStyle(
-                                        fontWeight:
-                                            FontWeight
-                                                .bold,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
 
                                   Container(
-                                    padding:
-                                        const EdgeInsets
-                                            .symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
                                       vertical: 4,
                                     ),
 
-                                    decoration:
-                                        BoxDecoration(
-                                      color: Colors
-                                          .green.shade100,
-                                      borderRadius:
-                                          BorderRadius
-                                              .circular(
-                                        20,
-                                      ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.shade100,
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
 
                                     child: const Row(
-                                      mainAxisSize:
-                                          MainAxisSize
-                                              .min,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
                                           Icons.verified,
                                           size: 14,
-                                          color:
-                                              Colors
-                                                  .green,
+                                          color: Colors.green,
                                         ),
 
-                                        SizedBox(
-                                            width: 4),
+                                        SizedBox(width: 4),
 
                                         Text(
                                           'Berhasil',
-                                          style:
-                                              TextStyle(
-                                            fontSize:
-                                                11,
-                                            color: Colors
-                                                .green,
-                                            fontWeight:
-                                                FontWeight
-                                                    .bold,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ],
@@ -280,9 +230,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                                 ],
                               ),
 
-                              const Divider(
-                                height: 24,
-                              ),
+                              const Divider(height: 24),
 
                               _detailRow(
                                 'Jenis Transaksi',
@@ -296,46 +244,33 @@ class SetoranBerhasilScreen extends StatelessWidget {
 
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment
-                                        .spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
 
-                                crossAxisAlignment:
-                                    CrossAxisAlignment
-                                        .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
 
                                 children: [
                                   const Text(
                                     'ID Transaksi',
-                                    style: TextStyle(
-                                      color:
-                                          Colors.grey,
-                                    ),
+                                    style: TextStyle(color: Colors.grey),
                                   ),
 
                                   Row(
                                     children: [
                                       const Text(
                                         'TRX-20231024-0091',
-                                        style:
-                                            TextStyle(
-                                          fontWeight:
-                                              FontWeight
-                                                  .w600,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
 
                                       IconButton(
                                         onPressed: () =>
-                                            copyTransactionId(
-                                          context,
-                                        ),
+                                            copyTransactionId(context),
 
-                                        icon:
-                                            const Icon(
+                                        icon: const Icon(
                                           Icons.copy,
                                           size: 18,
-                                          color:
-                                              primaryColor,
+                                          color: primaryColor,
                                         ),
                                       ),
                                     ],
@@ -343,14 +278,9 @@ class SetoranBerhasilScreen extends StatelessWidget {
                                 ],
                               ),
 
-                              _detailRow(
-                                'Sumber Dana',
-                                'Transfer Bank BCA',
-                              ),
+                              _detailRow('Sumber Dana', 'Transfer Bank BCA'),
 
-                              const SizedBox(
-                                height: 16,
-                              ),
+                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
@@ -358,18 +288,14 @@ class SetoranBerhasilScreen extends StatelessWidget {
                         const SizedBox(height: 20),
 
                         const Padding(
-                          padding:
-                              EdgeInsets.symmetric(
-                            horizontal: 12,
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 12),
 
                           child: Text(
                             '"Setoran Anda membantu pengembangan usaha mikro di lingkungan RW 04. Terima kasih atas partisipasi aktif Anda."',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.grey,
-                              fontStyle:
-                                  FontStyle.italic,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
                         ),
@@ -390,31 +316,24 @@ class SetoranBerhasilScreen extends StatelessWidget {
 
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            Navigator.pushReplacement(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const DashboardScreen(),
-                              ),
+                                  builder: (context) =>
+                                      const DashboardScreen()),
+                              (route) => false,
                             );
                           },
 
-                          style:
-                              ElevatedButton.styleFrom(
-                            backgroundColor:
-                                primaryColor,
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                12,
-                              ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
 
                           icon: const Icon(
-                            Icons
-                                .home_outlined,
+                            Icons.home_outlined,
                             color: Colors.white,
                           ),
 
@@ -422,8 +341,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                             'Ke Beranda',
                             style: TextStyle(
                               color: Colors.white,
-                              fontWeight:
-                                  FontWeight.bold,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -438,21 +356,11 @@ class SetoranBerhasilScreen extends StatelessWidget {
                         child: OutlinedButton(
                           onPressed: () {},
 
-                          style:
-                              OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: Color(
-                                0xffE4BEBA,
-                              ),
-                            ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xffE4BEBA)),
 
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                12,
-                              ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
 
@@ -460,8 +368,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                             'Unduh Resi',
                             style: TextStyle(
                               color: primaryColor,
-                              fontWeight:
-                                  FontWeight.bold,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -477,37 +384,23 @@ class SetoranBerhasilScreen extends StatelessWidget {
     );
   }
 
-  static Widget _detailRow(
-    String title,
-    String value,
-  ) {
+  static Widget _detailRow(String title, String value) {
     return Padding(
-      padding: const EdgeInsets.only(
-        bottom: 14,
-      ),
+      padding: const EdgeInsets.only(bottom: 14),
 
       child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.grey,
-            ),
-          ),
+          Text(title, style: const TextStyle(color: Colors.grey)),
 
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
