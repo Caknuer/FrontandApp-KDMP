@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../config/api_config.dart';
+import 'waiting_approval_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -77,103 +82,226 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void register() async {
+  Future<void> register() async {
     if (namaController.text.isEmpty ||
-          nikController.text.isEmpty ||
-          hpController.text.isEmpty ||
-          emailController.text.isEmpty ||
-          alamatController.text.isEmpty ||
-          usernameController.text.isEmpty ||
-          passwordController.text.isEmpty ||
-          confirmController.text.isEmpty) {
+        nikController.text.isEmpty ||
+        hpController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        alamatController.text.isEmpty ||
+        usernameController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmController.text.isEmpty) {
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Semua data wajib diisi'),
-          ),
-        );
-        return;
-      }
-
-      if (tipeKeanggotaan == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pilih tipe keanggotaan'),
-          ),
-        );
-        return;
-      }
-
-    if (passwordController.text != confirmController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Konfirmasi password tidak sama')),
+        const SnackBar(
+          content: Text(
+            "Semua data wajib diisi",
+          ),
+        ),
       );
+
+      return;
+    }
+
+    if (tipeKeanggotaan == null) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Pilih tipe keanggotaan",
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    if (passwordController.text !=
+        confirmController.text) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Konfirmasi password tidak sama",
+          ),
+        ),
+      );
+
       return;
     }
 
     if (ktpImage == null) {
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Foto KTP wajib diupload'),
+          content: Text(
+            "Foto KTP wajib diupload",
+          ),
         ),
       );
+
       return;
     }
 
     if (!agree) {
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Setujui syarat dan ketentuan')),
+        const SnackBar(
+          content: Text(
+            "Setujui syarat dan ketentuan",
+          ),
+        ),
       );
+
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    try {
 
-    await Future.delayed(const Duration(seconds: 2));
+      setState(() {
+        isLoading = true;
+      });
 
-    setState(() {
-      isLoading = false;
-    });
-    
-    if (!mounted) return;
+      // ======================
+      // UPLOAD FOTO KTP
+      // ======================
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: const Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green),
-              SizedBox(width: 10),
-              Text('Berhasil'),
-            ],
-          ),
+      final request =
+          http.MultipartRequest(
+        "POST",
+        Uri.parse(
+          "${ApiConfig.baseUrl}/upload/image",
+        ),
+      );
 
-          content: Text(
-            'Pendaftaran sebagai $tipeKeanggotaan berhasil dikirim.',
-          ),
+      request.files.add(
+        await http.MultipartFile
+            .fromPath(
+          "file",
+          ktpImage!.path,
+        ),
+      );
 
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
+      final uploadResponse =
+          await request.send();
 
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
-              },
-              child: const Text('OK'),
-            ),
-          ],
+      final uploadBody =
+          await uploadResponse.stream
+              .bytesToString();
+
+      final uploadResult =
+          jsonDecode(uploadBody);
+
+      if (uploadResponse.statusCode !=
+          200) {
+
+        throw Exception(
+          uploadResult["message"],
         );
-      },
-    );
+      }
+
+      final fotoKtpUrl =
+          uploadResult["url"];
+
+      // ======================
+      // FIREBASE REGISTER
+      // ======================
+
+      final credential =
+          await FirebaseAuth.instance
+              .createUserWithEmailAndPassword(
+        email:
+            emailController.text.trim(),
+        password:
+            passwordController.text.trim(),
+      );
+
+      final firebaseUid =
+          credential.user!.uid;
+
+      // ======================
+      // REGISTER BACKEND
+      // ======================
+
+      final response =
+          await http.post(
+        Uri.parse(
+          "${ApiConfig.baseUrl}/auth/register",
+        ),
+        headers: {
+          "Content-Type":
+              "application/json",
+        },
+        body: jsonEncode({
+          "firebase_uid":
+              firebaseUid,
+          "nama":
+              namaController.text,
+          "nik":
+              nikController.text,
+          "email":
+              emailController.text,
+          "noHp":
+              hpController.text,
+          "alamat":
+              alamatController.text,
+          "tipeKeanggotaan":
+              tipeKeanggotaan,
+          "username":
+              usernameController.text,
+          "fotoKtpUrl":
+              fotoKtpUrl,
+        }),
+      );
+
+      final result =
+          jsonDecode(
+        response.body,
+      );
+
+      if (response.statusCode !=
+              201 &&
+          response.statusCode !=
+              200) {
+
+        throw Exception(
+          result["message"],
+        );
+      }
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              const WaitingApprovalScreen(),
+        ),
+      );
+
+    } catch (e) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+          ),
+        ),
+      );
+
+    } finally {
+
+      if (mounted) {
+
+        setState(() {
+          isLoading = false;
+        });
+
+      }
+
+    }
+
   }
 
   InputDecoration inputDecoration(String hint, IconData icon) {
