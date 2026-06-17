@@ -1,7 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DetailPengumumanPage extends StatelessWidget {
-  const DetailPengumumanPage({super.key});
+
+  final String title;
+  final String content;
+  final String image;
+  final String createdAt;
+
+  const DetailPengumumanPage({
+    super.key,
+    required this.title,
+    required this.content,
+    required this.image,
+    required this.createdAt,
+  });
+
+  String formatTanggal() {
+
+    try {
+
+      final date =
+          DateTime.parse(createdAt);
+
+      return DateFormat(
+        "dd MMMM yyyy",
+        "id_ID",
+      ).format(date);
+
+    } catch (_) {
+
+      return createdAt;
+
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +76,24 @@ class DetailPengumumanPage extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    'https://images.unsplash.com/photo-1554224155-6726b3ff858f',
-                    fit: BoxFit.cover,
-                  ),
+                  image.isNotEmpty
+
+                  ? Image.network(
+                      image,
+                      fit: BoxFit.cover,
+                    )
+
+                  : Container(
+                      color: Colors.grey.shade300,
+
+                      child: const Center(
+                        child: Icon(
+                          Icons.campaign,
+                          size: 80,
+                          color: Color(0xffAF101A),
+                        ),
+                      ),
+                    ),
                   Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
@@ -113,8 +160,8 @@ class DetailPengumumanPage extends StatelessWidget {
 
                       const SizedBox(width: 4),
 
-                      const Text(
-                        '25 Oktober 2023',
+                      Text(
+                        formatTanggal(),
                         style: TextStyle(
                           color: Colors.grey,
                         ),
@@ -124,8 +171,8 @@ class DetailPengumumanPage extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  const Text(
-                    'Pembagian Sisa Hasil Usaha (SHU) Tahun Buku 2023',
+                  Text(
+                    title,
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -135,27 +182,14 @@ class DetailPengumumanPage extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  const Text(
-                    'Salam Koperasi! Kami dengan bangga mengumumkan bahwa berdasarkan hasil Rapat Anggota Tahunan (RAT) yang telah dilaksanakan, Koperasi Desa Mandiri akan segera melakukan pembagian Sisa Hasil Usaha (SHU) untuk Tahun Buku 2023.',
-                    style: TextStyle(
+                  Text(
+                    content,
+                    style: const TextStyle(
                       fontSize: 16,
                       height: 1.7,
                       color: Color(0xff5B403D),
                     ),
                   ),
-
-                  const SizedBox(height: 16),
-
-                  const Text(
-                    'Pembagian ini merupakan bentuk apresiasi kami atas partisipasi aktif seluruh anggota dalam memajukan perekonomian desa kita melalui unit usaha bersama.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      height: 1.7,
-                      color: Color(0xff5B403D),
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
 
                   SizedBox(
                     width: double.infinity,

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../config/api_config.dart';
+import 'package:intl/intl.dart';
+import 'show_screen.dart';
 
 class PengumumanPage extends StatefulWidget {
   const PengumumanPage({super.key});
@@ -8,48 +13,92 @@ class PengumumanPage extends StatefulWidget {
 }
 
 class _PengumumanPageState extends State<PengumumanPage> {
+
+  @override
+  void initState() {
+    super.initState();
+    loadAnnouncements();
+  }
+
+  Future<void> loadAnnouncements() async {
+
+    try {
+
+      final response =
+          await http.get(
+        Uri.parse(
+          "${ApiConfig.baseUrl}/announcements",
+        ),
+      );
+
+      if (response.statusCode == 200) {
+
+        final result =
+            jsonDecode(response.body);
+
+        setState(() {
+
+          announcements =
+              result["data"];
+
+          loading = false;
+
+        });
+
+      }
+
+    } catch (e) {
+
+      debugPrint(e.toString());
+
+      setState(() {
+        loading = false;
+      });
+
+    }
+
+  }
+
   final TextEditingController searchController =
       TextEditingController();
 
-  final List<Map<String, String>> announcements = [
-    {
-      "title":
-          "Pembagian Sisa Hasil Usaha (SHU) Tahun Buku 2023",
-      "date": "25 Okt 2023",
-      "image":
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuD7IhVBWytaHqI2UtPt4LfGiGwUC5uJrQ6sivV8deJUYlKfBzcEcypddA6JNpntz7P53zhlswOd0OjyZWgBtSsrO90SMzTFr48htC9eS-EcGGdmp5S2fxdOL7Zby2S-ACQRxCEX5zdk8I02LFt2ErakRRXni1N709oQxoEgx6rx8qS3rSCki4R_-x1k_mnx-LqysiPX3gORS3an7gjdlKYmxLjGoyhWfUeIEBOx1YP8scUZxGsUK-DNgSvOQlNefCC_dy6SPS08uIpU",
-      "pinned": "true",
-    },
-    {
-      "title": "Perubahan Jam Operasional Kantor",
-      "date": "22 Okt 2023",
-      "image":
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuBDuwFJaO-UbYKWFqDKGFuJV7GgqRWyMBrJ3mpwcaL9JDEmybKkdBsr1sUjApdTjFInPoof3-WX1KvCVaTlXbhlVRQZ56NchiE_W2RfRpZfHQLN0hFDZNv2cBkhINvria0_N9bNf5snQXRB6exHa38lNCM4yt5ZuJ0hcBjlwMu8Pk1Sc5Z0XOgWsl29M1gDf0CnYqGG5pxAErZd4ygWm4t4mAVsEd71GivNcybwR6COVo-IgRPbqtScSmJnywzH8ebYF6Lg73GWk6QY",
-    },
-    {
-      "title":
-          "Sosialisasi Program Pinjaman Modal Mikro",
-      "date": "20 Okt 2023",
-      "image":
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuBkAnUEGck-Wosy8XWfhwDpNGAxyvkUy8SD-rZXRO3gLEu4SSBopx91eqeyfaTgUco2j-5xXMgJalAesEm2wqCEMcOS7sS6laQFb2xGCp7ucA-1u_G4iniXm8ukkCAlH_HNaXitFOhopOy6mazuLKMhYKhVruAKTgMe8mCehiEU_X2nlP19q8ZsMvpewaZFDbuVu410QkYANVFOyh7NqZXP1EycjS-rqcytJxmultXaepzx8pepGgqt7mH91wNDDyjlgsilS_52QuJC",
-    },
-    {
-      "title":
-          "Laporan Keuangan Triwulan III Selesai",
-      "date": "18 Okt 2023",
-      "image":
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuAZQ2eQCNhkJN3R5RluRav0t2kp5R9vLOUcUJ1g_0r2v9M7jaAsHSNHroQc5ETZegE74c_sObZatTldU-wqBjQWEbiBeTDPwdJLXXNlfoI0bXG9mv18fazghPTxk26_mEGJFS0xylzWXdJ7Vxez51puGxnvCWK1jPk7ekA2-NJ1y3JpuBrlqRNqRIwNzUWdlI-lrcQlU1mz8uyVMidkiWUUiShEZkF7n4QmdF3D8r4CQE4Ypvt1nyEa1XlTE5BEuCifezx8v89T8L_G",
-    },
-  ];
+  List announcements = [];
+
+  bool loading = true;
 
   String searchText = '';
+  
+  String formatTanggal(String date) {
+
+    try {
+
+      return DateFormat(
+        "dd MMM yyyy",
+        "id_ID",
+      ).format(
+        DateTime.parse(date),
+      );
+
+    } catch (_) {
+
+      return date;
+
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = announcements.where((item) {
-      return item['title']!
+    final filteredData =
+        announcements.where((item) {
+
+      return item["judul"]
+          .toString()
           .toLowerCase()
-          .contains(searchText.toLowerCase());
+          .contains(
+            searchText.toLowerCase(),
+          );
+
     }).toList();
 
     return Scaffold(
@@ -125,7 +174,14 @@ class _PengumumanPageState extends State<PengumumanPage> {
           ),
 
           Expanded(
-            child: ListView.builder(
+            child: loading
+
+                ? const Center(
+                    child:
+                        CircularProgressIndicator(),
+                  )
+
+                : ListView.builder(
               padding:
                   const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -140,13 +196,11 @@ class _PengumumanPageState extends State<PengumumanPage> {
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
-                            PengumumanDetailPage(
-                          title:
-                              item['title'] ?? '',
-                          date:
-                              item['date'] ?? '',
-                          image:
-                              item['image'] ?? '',
+                        DetailPengumumanPage(
+                          title: item['judul'] ?? '',
+                          content: item['konten'] ?? '',
+                          image: item['gambar_url'] ?? '',
+                          createdAt: item['created_at'] ?? '',
                         ),
                       ),
                     );
@@ -172,16 +226,26 @@ class _PengumumanPageState extends State<PengumumanPage> {
                     child: Row(
                       children: [
                         ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(
-                            12,
-                          ),
-                          child: Image.network(
-                            item['image']!,
-                            width: 90,
-                            height: 90,
-                            fit: BoxFit.cover,
-                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          child: item['gambar_url'] != null
+
+                              ? Image.network(
+                                  item['gambar_url'],
+                                  width: 90,
+                                  height: 90,
+                                  fit: BoxFit.cover,
+                                )
+
+                              : Container(
+                                  width: 90,
+                                  height: 90,
+                                  color: Colors.grey.shade200,
+                                  child: const Icon(
+                                    Icons.campaign,
+                                    color: Color(0xffAF101A),
+                                    size: 40,
+                                  ),
+                                ),
                         ),
 
                         const SizedBox(width: 12),
@@ -192,8 +256,6 @@ class _PengumumanPageState extends State<PengumumanPage> {
                                 CrossAxisAlignment
                                     .start,
                             children: [
-                              if (item['pinned'] ==
-                                  'true')
                                 Container(
                                   padding:
                                       const EdgeInsets
@@ -227,7 +289,9 @@ class _PengumumanPageState extends State<PengumumanPage> {
                                   height: 6),
 
                               Text(
-                                item['date']!,
+                                formatTanggal(
+                                  item['created_at'],
+                                ),
                                 style:
                                     TextStyle(
                                   color:
@@ -241,7 +305,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
                                   height: 4),
 
                               Text(
-                                item['title']!,
+                                item['judul']!,
                                 maxLines: 2,
                                 overflow:
                                     TextOverflow
@@ -305,12 +369,14 @@ class PengumumanDetailPage
   final String title;
   final String date;
   final String image;
+  final String content;
 
   const PengumumanDetailPage({
     super.key,
     required this.title,
     required this.date,
     required this.image,
+    required this.content,
   });
 
   @override
@@ -321,11 +387,25 @@ class PengumumanDetailPage
       ),
       body: ListView(
         children: [
-          Image.network(
-            image,
-            height: 250,
-            fit: BoxFit.cover,
-          ),
+          image.isNotEmpty
+
+          ? Image.network(
+              image,
+              height: 250,
+              fit: BoxFit.cover,
+            )
+
+          : Container(
+              height: 250,
+              color: Colors.grey.shade200,
+              child: const Center(
+                child: Icon(
+                  Icons.campaign,
+                  size: 80,
+                  color: Color(0xffAF101A),
+                ),
+              ),
+            ),
 
           Padding(
             padding:
@@ -356,12 +436,12 @@ class PengumumanDetailPage
 
                 const SizedBox(height: 20),
 
-                const Text(
-                  'Isi pengumuman dapat ditampilkan di sini sesuai data dari API atau database.',
-                  style: TextStyle(
+                Text(
+                  content,
+                  style: const TextStyle(
                     height: 1.6,
                   ),
-                ),
+                )
               ],
             ),
           ),
