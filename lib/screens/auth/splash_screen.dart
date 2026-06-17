@@ -1,6 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+
+import '../../config/api_config.dart';
+
 import 'login_screen.dart';
+import 'waiting_approval_screen.dart';
+import 'rejected_screen.dart';
+
+import '../dashboard_screen.dart';
 
 class SplashOne extends StatefulWidget {
   const SplashOne({super.key});
@@ -15,16 +26,136 @@ class _SplashOneState extends State<SplashOne> {
   void initState() {
     super.initState();
 
-    Timer(const Duration(seconds: 10), () {
+    checkLogin();
+  }
+
+  Future<void> checkLogin() async {
+
+    await Future.delayed(
+      const Duration(seconds: 2),
+    );
+
+    try {
+
+      final user =
+          FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const LoginScreen(),
+          ),
+        );
+
+        return;
+
+      }
+
+      final token =
+          await user.getIdToken();
+
+      final response =
+          await http.get(
+        Uri.parse(
+          "${ApiConfig.baseUrl}/auth/profile",
+        ),
+        headers: {
+          "Authorization":
+              "Bearer $token",
+        },
+      );
+
+      if (response.statusCode != 200) {
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const LoginScreen(),
+          ),
+        );
+
+        return;
+
+      }
+
+      final result =
+          jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      final status =
+          result["data"]["status"];
+
+      if (status == "approved") {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const DashboardScreen(),
+          ),
+        );
+
+      } else if (
+          status == "pending") {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const WaitingApprovalScreen(),
+          ),
+        );
+
+      } else if (
+          status == "rejected") {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const RejectedScreen(),
+          ),
+        );
+
+      } else {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const LoginScreen(),
+          ),
+        );
+
+      }
+
+    } catch (e) {
+
+      debugPrint(
+        "SPLASH ERROR: $e",
+      );
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
+          builder: (_) =>
+              const LoginScreen(),
         ),
       );
 
-    });
+    }
+
   }
 
   @override
