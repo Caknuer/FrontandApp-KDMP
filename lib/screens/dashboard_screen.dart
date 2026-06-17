@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
+import '../config/api_config.dart';
 import 'riwayat_screen.dart';
 import 'info_screen.dart';
 import 'page-profil/profile_screen.dart';
@@ -21,8 +25,77 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool hasNotification = true;
-  String namaUser = 'Budi';
-  String saldoUser = '12.450.000';
+  String namaUser = "";
+  String saldoUser = "0";
+  String emailUser = "";
+  String statusUser = "";
+  String tipeKeanggotaan = "";
+  bool loading = true;
+
+  @override
+    void initState() {
+      super.initState();
+      loadProfile();
+    }
+
+    Future<void> loadProfile() async {
+      try {
+
+        final user =
+            FirebaseAuth.instance.currentUser;
+
+        if (user == null) return;
+
+        final token =
+            await user.getIdToken();
+
+        final response =
+            await http.get(
+          Uri.parse(
+            "${ApiConfig.baseUrl}/auth/profile",
+          ),
+          headers: {
+            "Authorization":
+                "Bearer $token",
+          },
+        );
+
+        if (response.statusCode == 200) {
+
+          final result =
+              jsonDecode(response.body);
+
+          final data =
+              result["data"];
+
+          setState(() {
+
+            namaUser =
+                data["nama"] ?? "";
+
+            emailUser =
+                data["email"] ?? "";
+
+            statusUser =
+                data["status"] ?? "";
+
+            tipeKeanggotaan =
+                data["tipe_keanggotaan"] ?? "";
+
+            loading = false;
+
+          });
+
+        }
+
+      } catch (e) {
+
+        debugPrint(
+          "DASHBOARD ERROR: $e",
+        );
+
+      }
+    }
   
   @override
   Widget build(BuildContext context) {
@@ -133,9 +206,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 5),
 
-            const Text(
-              'Selamat pagi, kelola tabunganmu dengan mudah.',
-              style: TextStyle(
+            Text(
+              "$tipeKeanggotaan • $statusUser",
+              style: const TextStyle(
                 color: Colors.black54,
                 fontSize: 16,
               ),
