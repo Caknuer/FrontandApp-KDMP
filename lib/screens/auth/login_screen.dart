@@ -1,4 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import '../../config/api_config.dart';
+import 'waiting_approval_screen.dart';
+import 'rejected_screen.dart';
 import 'register_screen.dart';
 import '../dashboard_screen.dart';
 
@@ -13,8 +19,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState
     extends State<LoginScreen> {
 
-  final TextEditingController usernameController =
-      TextEditingController();
+  final TextEditingController emailController =
+    TextEditingController();
 
   final TextEditingController passwordController =
       TextEditingController();
@@ -23,29 +29,171 @@ class _LoginScreenState
   bool rememberMe = false;
   bool isLoading = false;
 
-  void login() async {
+  Future<void> login() async {
 
-    setState(() {
-      isLoading = true;
-    });
+    if (emailController.text.isEmpty ||
+        passwordController.text.isEmpty) {
 
-    await Future.delayed(
-      const Duration(seconds: 2),
-    );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Email dan password wajib diisi",
+          ),
+        ),
+      );
 
-    setState(() {
-      isLoading = false;
-    });
+      return;
 
-    if (!mounted) return;
+    }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            const DashboardScreen(),
-      ),
-    );
+    try {
+
+      setState(() {
+        isLoading = true;
+      });
+
+      final credential =
+          await FirebaseAuth.instance
+              .signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      final token =
+          await credential.user!
+              .getIdToken();
+
+      final response =
+          await http.get(
+        Uri.parse(
+          "${ApiConfig.baseUrl}/auth/profile",
+        ),
+        headers: {
+          "Authorization":
+              "Bearer $token",
+        },
+      );
+
+      debugPrint(
+        response.statusCode.toString(),
+      );
+
+      debugPrint(
+        response.body,
+      );
+
+      final result =
+          jsonDecode(response.body);
+
+      if (response.statusCode != 200) {
+
+        throw Exception(
+          result["message"] ??
+          "Gagal mengambil profile",
+        );
+
+      }
+
+      final user =
+          result["data"];
+
+      final status =
+          user["status"];
+
+      if (!mounted) return;
+
+      if (status == "pending") {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const WaitingApprovalScreen(),
+          ),
+        );
+
+        return;
+
+      }
+
+      if (status == "rejected") {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                const RejectedScreen(),
+          ),
+        );
+
+        return;
+
+      }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              const DashboardScreen(),
+        ),
+      );
+
+    } on FirebaseAuthException catch (e) {
+
+      String message =
+          "Login gagal";
+
+      if (e.code ==
+          "user-not-found") {
+
+        message =
+            "Email tidak ditemukan";
+
+      } else if (e.code ==
+          "wrong-password") {
+
+        message =
+            "Password salah";
+
+      } else if (e.code ==
+          "invalid-credential") {
+
+        message =
+            "Email atau password salah";
+
+      }
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content:
+              Text(message),
+        ),
+      );
+
+    } catch (e) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content:
+              Text(e.toString()),
+        ),
+      );
+
+    } finally {
+
+      if (mounted) {
+
+        setState(() {
+          isLoading = false;
+        });
+
+      }
+
+    }
+
   }
 
   @override
@@ -211,7 +359,7 @@ class _LoginScreenState
                                 .centerLeft,
 
                         child: Text(
-                          'Username',
+                          'Email',
 
                           style: TextStyle(
                             fontWeight:
@@ -230,12 +378,12 @@ class _LoginScreenState
 
                       TextField(
                         controller:
-                            usernameController,
+                            emailController,
 
                         decoration:
                             InputDecoration(
                           hintText:
-                              'Masukkan username',
+                              'Masukkan email',
 
                           prefixIcon:
                               const Icon(
