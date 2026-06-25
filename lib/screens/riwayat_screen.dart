@@ -3,6 +3,9 @@ import 'dashboard_screen.dart';
 import 'info_screen.dart';
 import 'page-profil/profile_screen.dart';
 import 'detailtransaksi_screen.dart';
+import '../../services/transaksi_setoran_service.dart';
+import '../../services/penarikan_service.dart';
+import 'package:intl/intl.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -17,40 +20,69 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
 
   final List<String> filters = ['Semua', 'Simpan', 'Tarik'];
 
-  final List<Map<String, dynamic>> transactions = [
-    {
-      'title': 'Simpanan Sukarela',
-      'amount': '+Rp 500.000',
-      'time': '10:45 WIB',
-      'status': 'Berhasil',
-      'date': 'Hari Ini',
-      'isIncome': true,
-    },
-    {
-      'title': 'Penarikan Saldo',
-      'amount': '-Rp 200.000',
-      'time': '08:12 WIB',
-      'status': 'Diproses',
-      'date': 'Hari Ini',
-      'isIncome': false,
-    },
-    {
-      'title': 'Simpanan Wajib',
-      'amount': '+Rp 100.000',
-      'time': '14:20 WIB',
-      'status': 'Berhasil',
-      'date': '24 Okt 2023',
-      'isIncome': true,
-    },
-    {
-      'title': 'Simpanan Pokok',
-      'amount': '-Rp 1.000.000',
-      'time': '09:00 WIB',
-      'status': 'Ditolak',
-      'date': '24 Okt 2023',
-      'isIncome': false,
-    },
-  ];
+  List<dynamic> transactions = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final setoran = await TransaksiSetoranService.getByUser();
+
+    final penarikan = await PenarikanService.getByUser();
+
+    final allTransactions = [
+      ...setoran.map((e) => {...e, "tipe": "setoran"}),
+
+      ...penarikan.map((e) => {...e, "tipe": "penarikan"}),
+    ];
+
+    allTransactions.sort(
+      (a, b) => DateTime.parse(
+        b["created_at"],
+      ).compareTo(DateTime.parse(a["created_at"])),
+    );
+
+    setState(() {
+      transactions = allTransactions;
+      isLoading = false;
+    });
+  }
+
+  String getStatusText(String status) {
+    switch (status) {
+      case "approved":
+        return "Berhasil";
+
+      case "pending":
+        return "Menunggu";
+
+      case "rejected":
+        return "Ditolak";
+
+      default:
+        return status;
+    }
+  }
+
+  String formatRupiah(String nominal) {
+    final number = int.tryParse(nominal) ?? 0;
+
+    return NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: '',
+      decimalDigits: 0,
+    ).format(number);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,173 +140,117 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         ],
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: loadData,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 45,
 
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: filters.length,
 
-              decoration: BoxDecoration(
-                color: const Color(0xffD32F2F),
-                borderRadius: BorderRadius.circular(24),
-              ),
+                        itemBuilder: (context, index) {
+                          final isSelected = selectedFilter == index;
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 10),
 
-                children: [
-                  Text(
-                    'Total Transaksi Bulan Ini',
-                    style: TextStyle(
-                      color: Colors.white.withAlpha(230), // 0.9 * 255
-                      fontSize: 14,
-                    ),
-                  ),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedFilter = index;
+                                });
+                              },
 
-                  const SizedBox(height: 10),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 22,
+                                  vertical: 10,
+                                ),
 
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xffD32F2F)
+                                      : Colors.grey.shade200,
 
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'Rp 4.250.000',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
 
-                  const SizedBox(height: 20),
+                                child: Text(
+                                  filters[index],
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.black54,
 
-                    children: const [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_month,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-
-                          SizedBox(width: 6),
-
-                          Text(
-                            'Oktober 2023',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-
-                      Text(
-                        '24 Transaksi',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            SizedBox(
-              height: 45,
-
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: filters.length,
-
-                itemBuilder: (context, index) {
-                  final isSelected = selectedFilter == index;
-
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedFilter = index;
-                        });
-                      },
-
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 22,
-                          vertical: 10,
-                        ),
-
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xffD32F2F)
-                              : Colors.grey.shade200,
-
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-
-                        child: Text(
-                          filters[index],
-
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black54,
-
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
-                  );
-                },
+
+                    const SizedBox(height: 24),
+
+                    buildTransactionGroup(context),
+                  ],
+                ),
               ),
             ),
-
-            const SizedBox(height: 24),
-
-            buildTransactionGroup(context, 'Hari Ini'),
-
-            const SizedBox(height: 24),
-
-            buildTransactionGroup(context, '24 Okt 2023'),
-
-          ],
-        ),
-      ),
     );
   }
 
-  Widget buildTransactionGroup( BuildContext context, String date) {
-    final filteredTransactions = transactions.where((transaction) {
-      if (transaction['date'] != date) return false;
-
+  Widget buildTransactionGroup(BuildContext context) {
+    final filteredTransactions = transactions.where((item) {
       if (selectedFilter == 1) {
-        return transaction['isIncome'] == true;
+        return item["tipe"] == "setoran";
       }
 
       if (selectedFilter == 2) {
-        return transaction['isIncome'] == false;
+        return item["tipe"] == "penarikan";
       }
 
       return true;
     }).toList();
 
     if (filteredTransactions.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        child: const Center(
-          child: Text(
-            'Tidak ada transaksi',
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 80),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.receipt_long, size: 80, color: Colors.grey),
+
+              SizedBox(height: 16),
+
+              Text(
+                'Belum Ada Transaksi',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+
+              SizedBox(height: 8),
+
+              Text(
+                'Riwayat transaksi akan muncul di sini',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
           ),
         ),
       );
@@ -284,38 +260,53 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-        Text(
-          date.toUpperCase(),
-
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black54,
-            letterSpacing: 1,
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
         Column(
           children: filteredTransactions.map((transaction) {
-            final bool isIncome = transaction['isIncome'];
+            final bool isIncome = transaction["tipe"] == "setoran";
+            final status = transaction['status'] ?? '';
+            final statusText = getStatusText(status);
 
             Color iconBg;
             Color iconColor;
             IconData iconData;
 
-            if (transaction['status'] == 'Ditolak') {
+            if (transaction["tipe"] ==
+                "penarikan") {
+
+              iconBg =
+                  Colors.red.shade100;
+
+              iconColor = Colors.red;
+
+              iconData =
+                  Icons.arrow_upward;
+
+            }
+            else {
+
+              iconBg =
+                  Colors.green.shade100;
+
+              iconColor =
+                  Colors.green;
+
+              iconData =
+                  Icons.arrow_downward;
+
+            }
+
+            if (status == 'rejected') {
               iconBg = Colors.red.shade100;
               iconColor = Colors.red;
               iconData = Icons.close;
-            } else if (isIncome) {
+            } else if (status == 'pending') {
+              iconBg = Colors.orange.shade100;
+              iconColor = Colors.orange;
+              iconData = Icons.schedule;
+            } else {
               iconBg = Colors.green.shade100;
               iconColor = Colors.green;
-              iconData = Icons.south_west;
-            } else {
-              iconBg = Colors.red.shade100;
-              iconColor = Colors.red;
-              iconData = Icons.north_east;
+              iconData = Icons.check;
             }
 
             return InkWell(
@@ -324,9 +315,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => DetailTransaksiScreen( 
-                      transaction: transaction,
-                    ),
+                    builder: (_) =>
+                        DetailTransaksiScreen(transaction: transaction),
                   ),
                 );
               },
@@ -375,7 +365,9 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  transaction['title'],
+                                  transaction["tipe"] == "setoran"
+                                      ? transaction["jenis_simpanan"]
+                                      : "Penarikan Saldo",
 
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -385,12 +377,10 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                               ),
 
                               Text(
-                                transaction['amount'],
+                                "Rp ${formatRupiah((transaction['nominal'] ?? 0).toString())}",
 
                                 style: TextStyle(
-                                  color: isIncome
-                                    ? Colors.green
-                                    : Colors.red,
+                                  color: isIncome ? Colors.green : Colors.red,
 
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -405,8 +395,12 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
 
                             children: [
                               Text(
-                                transaction['time'],
-
+                                DateFormat('dd/MM/yyyy HH:mm').format(
+                                  DateTime.parse(
+                                    transaction['created_at'] ??
+                                        DateTime.now().toIso8601String(),
+                                  ),
+                                ),
                                 style: const TextStyle(color: Colors.black54),
                               ),
 
@@ -417,9 +411,9 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                                 ),
 
                                 decoration: BoxDecoration(
-                                  color: transaction['status'] == 'Berhasil'
+                                  color: status == "approved"
                                       ? Colors.green.shade50
-                                      : transaction['status'] == 'Diproses'
+                                      : status == "pending"
                                       ? Colors.orange.shade50
                                       : Colors.red.shade50,
 
@@ -427,15 +421,15 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                                 ),
 
                                 child: Text(
-                                  transaction['status'],
+                                  statusText,
 
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
 
-                                    color: transaction['status'] == 'Berhasil'
+                                    color: status == "approved"
                                         ? Colors.green
-                                        : transaction['status'] == 'Diproses'
+                                        : status == "pending"
                                         ? Colors.orange
                                         : Colors.red,
                                   ),

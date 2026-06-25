@@ -26,6 +26,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final TextEditingController alamatController = TextEditingController();
 
+  final TextEditingController tempatLahirController = TextEditingController();
+
+  final TextEditingController pekerjaanController = TextEditingController();
+
   final TextEditingController usernameController = TextEditingController();
 
   final TextEditingController passwordController = TextEditingController();
@@ -38,6 +42,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
 
   String? tipeKeanggotaan;
+  String? jenisKelamin;
+  DateTime? tanggalLahir;
 
   Future<void> pickImage(ImageSource source) async {
     final XFile? image = await picker.pickImage(
@@ -88,6 +94,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         hpController.text.isEmpty ||
         emailController.text.isEmpty ||
         alamatController.text.isEmpty ||
+        tempatLahirController.text.isEmpty ||
+        pekerjaanController.text.isEmpty ||
         usernameController.text.isEmpty ||
         passwordController.text.isEmpty ||
         confirmController.text.isEmpty) {
@@ -109,6 +117,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SnackBar(
           content: Text(
             "Pilih tipe keanggotaan",
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    if (jenisKelamin == null ||
+        tanggalLahir == null) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Lengkapi data kelahiran",
           ),
         ),
       );
@@ -233,22 +256,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
               "application/json",
         },
         body: jsonEncode({
-          "firebase_uid":
-              firebaseUid,
-          "nama":
-              namaController.text,
-          "nik":
-              nikController.text,
-          "email":
-              emailController.text,
-          "noHp":
-              hpController.text,
-          "alamat":
-              alamatController.text,
+          "firebase_uid": firebaseUid,
+          "nama": namaController.text,
+          "nik": nikController.text,
+          "email": emailController.text,
+          "noHp": hpController.text,
+          "alamat": alamatController.text,
+
+          "jenisKelamin":
+              jenisKelamin,
+
+          "tempatLahir":
+              tempatLahirController.text,
+
+          "tanggalLahir":
+              tanggalLahir!
+                  .toIso8601String()
+                  .split("T")[0],
+
+          "pekerjaan":
+              pekerjaanController.text,
+
           "tipeKeanggotaan":
               tipeKeanggotaan,
+
           "username":
               usernameController.text,
+
           "fotoKtpUrl":
               fotoKtpUrl,
         }),
@@ -337,6 +371,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       hpController.dispose();
       emailController.dispose();
       alamatController.dispose();
+      tempatLahirController.dispose();
+      pekerjaanController.dispose();
       usernameController.dispose();
       passwordController.dispose();
       confirmController.dispose();
@@ -472,6 +508,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
               maxLines: 3,
 
               decoration: inputDecoration('Alamat Lengkap', Icons.home),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextField(
+              controller: tempatLahirController,
+              decoration: inputDecoration(
+                'Tempat Lahir',
+                Icons.location_city,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            GestureDetector(
+              onTap: () async {
+                final pickedDate =
+                    await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1950),
+                  lastDate: DateTime.now(),
+                );
+
+                if (pickedDate != null) {
+                  setState(() {
+                    tanggalLahir = pickedDate;
+                  });
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.circular(16),
+                  color: const Color(0xffF6F3F2),
+                ),
+                child: Text(
+                  tanggalLahir == null
+                      ? "Pilih Tanggal Lahir"
+                      : tanggalLahir!
+                          .toString()
+                          .split(" ")[0],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            DropdownButtonFormField<String>(
+              value: jenisKelamin,
+              decoration: inputDecoration(
+                'Jenis Kelamin',
+                Icons.person_outline,
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: 'Laki-laki',
+                  child: Text('Laki-laki'),
+                ),
+                DropdownMenuItem(
+                  value: 'Perempuan',
+                  child: Text('Perempuan'),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  jenisKelamin = value;
+                });
+              },
+            ),
+
+            const SizedBox(height: 15),
+
+            TextField(
+              controller: pekerjaanController,
+              decoration: inputDecoration(
+                'Pekerjaan',
+                Icons.work,
+              ),
             ),
 
             const SizedBox(height: 15),
