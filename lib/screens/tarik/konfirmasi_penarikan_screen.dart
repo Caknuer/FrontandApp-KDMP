@@ -1,9 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 class KonfirmasiPenarikanScreen extends StatelessWidget {
-  const KonfirmasiPenarikanScreen({super.key});
+
+  final String nominal;
+  final String keterangan;
+  final String transaksiId;
+
+  const KonfirmasiPenarikanScreen({
+    super.key,
+    required this.nominal,
+    required this.keterangan,
+    required this.transaksiId,
+  });
 
   static const Color primaryColor = Color(0xFFAF101A);
+  
+  String formatRupiah(String nominal) {
+    final value =
+        int.tryParse(nominal) ?? 0;
+
+    return NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: '',
+      decimalDigits: 0,
+    ).format(value);
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +140,7 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             const Text(
-              'Permintaan Penarikan Terkirim',
+              'Menunggu Verifikasi',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 26,
@@ -129,7 +153,7 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                'Permintaan Anda telah tercatat dalam sistem. Silakan kunjungi kantor koperasi untuk penyelesaian.',
+                'Permintaan penarikan berhasil dikirim dan sedang menunggu verifikasi admin koperasi.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black54,
@@ -180,7 +204,7 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
 
                   _detailRow(
                     'Nominal Penarikan',
-                    'Rp 500.000',
+                    'Rp ${formatRupiah(nominal)}',
                   ),
 
                   const SizedBox(height: 14),
@@ -196,14 +220,14 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
                     crossAxisAlignment:
                         CrossAxisAlignment.start,
                     children: [
-                      const Expanded(
-                        child: Text(
-                          'ID Transaksi',
-                          style: TextStyle(
-                            color: Colors.black54,
-                          ),
+                      Expanded(
+                      child: Text(
+                        'ID Transaksi',
+                        style: const TextStyle(
+                          color: Colors.black54,
                         ),
                       ),
+                    ),
 
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -215,9 +239,9 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
                           borderRadius:
                               BorderRadius.circular(8),
                         ),
-                        child: const Text(
-                          'TRX-WDL-20231024-0012',
-                          style: TextStyle(
+                        child: Text(
+                          transaksiId,
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -225,7 +249,27 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
                       ),
 
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          await Clipboard.setData(
+                            ClipboardData(
+                              text: transaksiId,
+                            ),
+                          );
+
+                          if (context.mounted) {
+
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "ID transaksi berhasil disalin",
+                                ),
+                              ),
+                            );
+
+                          }
+
+                        },
                         icon: const Icon(
                           Icons.copy,
                           color: primaryColor,
@@ -236,6 +280,45 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+
+            const SizedBox(height: 14),
+
+            Row(
+              children: [
+
+                const Expanded(
+                  child: Text(
+                    'Status',
+                    style: TextStyle(
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        Colors.orange.shade100,
+                    borderRadius:
+                        BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Pending',
+                    style: TextStyle(
+                      color:
+                          Colors.orange.shade800,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 20),
@@ -279,6 +362,36 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3CD),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                      children: [
+
+                        Text(
+                          "Informasi",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: primaryColor,
+                          ),
+                        ),
+
+                        SizedBox(height: 8),
+
+                        Text(
+                          "Permintaan penarikan akan diverifikasi oleh admin dalam waktu maksimal 1x24 jam.",
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
                   _stepItem(
                     '1',
                     'Kunjungi Kantor Koperasi Desa terdekat.',
@@ -300,46 +413,6 @@ class KonfirmasiPenarikanScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // MAP PLACEHOLDER
-            Container(
-              height: 140,
-              width: double.infinity,
-
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                image: const DecorationImage(
-                  image: NetworkImage(
-                    'https://images.unsplash.com/photo-1524661135-423995f22d0b',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(230),
-                    borderRadius:
-                        BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'Kantor Pusat Koperasi Sejahtera',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 30),
           ],
         ),
       ),
