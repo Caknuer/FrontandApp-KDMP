@@ -2,18 +2,35 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'setoran_berhasil_screen.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../../services/transaksi_setoran_service.dart';
+import '../../services/upload_service.dart';
+import 'package:intl/intl.dart';
 
 class KonfirmasiSetoranScreen extends StatefulWidget {
-  const KonfirmasiSetoranScreen({super.key});
+  final String jenis;
+  final String nominal;
+  final String keterangan;
+
+  const KonfirmasiSetoranScreen({
+    super.key,
+    required this.jenis,
+    required this.nominal,
+    required this.keterangan,
+  });
 
   @override
   State<KonfirmasiSetoranScreen> createState() =>
       _KonfirmasiSetoranScreenState();
-}
+  }
 
 class _KonfirmasiSetoranScreenState
     extends State<KonfirmasiSetoranScreen> {
   static const Color primaryColor = Color(0xFFAF101A);
+  String metodePembayaran = "QRIS";
+  File? buktiPembayaran;
+  bool isLoading = false;
 
   late Timer timer;
 
@@ -62,16 +79,15 @@ class _KonfirmasiSetoranScreenState
     return '$h:$m:$s';
   }
 
-  void copyId() {
-    Clipboard.setData(
-      const ClipboardData(text: 'SET-98231'),
-    );
+  String formatRupiah(String nominal) {
+    final number =
+        int.tryParse(nominal) ?? 0;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('ID berhasil disalin'),
-      ),
-    );
+    return NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: '',
+      decimalDigits: 0,
+    ).format(number);
   }
 
   @override
@@ -105,7 +121,7 @@ class _KonfirmasiSetoranScreenState
           16,
           8,
           16,
-          100,
+          24,
         ),
 
         child: Column(
@@ -197,14 +213,14 @@ class _KonfirmasiSetoranScreenState
                 children: [
                   _detailRow(
                     'Jenis Simpanan',
-                    'Simpanan Sukarela',
+                    widget.jenis,
                   ),
 
                   const SizedBox(height: 12),
 
                   _detailRow(
                     'Nominal Setoran',
-                    'Rp 500.000',
+                     'Rp ${formatRupiah(widget.nominal)}',
                     valueColor: primaryColor,
                     big: true,
                   ),
@@ -223,10 +239,12 @@ class _KonfirmasiSetoranScreenState
 
                   const SizedBox(height: 4),
 
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      '"Tabungan untuk usaha mikro"',
+                    child: Text(                   
+                      widget.keterangan.isEmpty
+                          ? "-"
+                          : widget.keterangan,
                       style: TextStyle(
                         fontStyle: FontStyle.italic,
                       ),
@@ -251,239 +269,307 @@ class _KonfirmasiSetoranScreenState
 
             const SizedBox(height: 12),
 
-            // QRIS
-            _buildCard(
-              title: 'Bayar via QRIS (Instant)',
-              icon: Icons.qr_code_2,
-              trailing: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-
-                decoration: BoxDecoration(
-                  color: primaryColor.withAlpha(26),
-                  borderRadius:
-                      BorderRadius.circular(20),
-                ),
-
-                child: const Text(
-                  'OTOMATIS',
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xffE4BEBA),
                 ),
               ),
-
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
 
-                    decoration: BoxDecoration(
-                      color: const Color(0xffF0EDED),
-                      borderRadius:
-                          BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        style: BorderStyle.solid,
+                  RadioListTile<String>(
+                    value: "QRIS",
+                    groupValue: metodePembayaran,
+                    title: const Text("QRIS"),
+                    subtitle: const Text(
+                      "Upload bukti pembayaran"
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        metodePembayaran = value!;
+                      });
+                    },
+                  ),
+
+                  RadioListTile<String>(
+                    value: "Tunai",
+                    groupValue: metodePembayaran,
+                    title: const Text("Tunai"),
+                    subtitle: const Text(
+                      "Bayar di kantor koperasi"
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        metodePembayaran = value!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            if (metodePembayaran == "QRIS")
+              _buildCard(
+                title: "Bayar via QRIS",
+                icon: Icons.qr_code,
+                child: Column(
+                  children: [
+
+                    Image.network(
+                      "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=KOPERASI",
+                      height: 220,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    ElevatedButton.icon(
+                      onPressed: () async {
+
+                        final picker =
+                            ImagePicker();
+
+                        final image =
+                            await picker.pickImage(
+                          source:
+                              ImageSource.gallery,
+                          imageQuality: 70,
+                        );
+
+                        if (image != null) {
+                          setState(() {
+                            buktiPembayaran =
+                                File(image.path);
+                          });
+                        }
+
+                      },
+                      icon: const Icon(
+                        Icons.upload,
+                      ),
+                      label: const Text(
+                        "Upload Bukti Pembayaran",
                       ),
                     ),
 
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 220,
-                          height: 220,
-                          padding:
-                              const EdgeInsets.all(10),
-                          color: Colors.white,
-
-                          child: Image.network(
-                            'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=SET-98231',
-                            fit: BoxFit.cover,
+                    if (buktiPembayaran != null)
+                      Container(
+                        margin:
+                            const EdgeInsets.only(
+                          top: 16,
+                        ),
+                        child: ClipRRect(
+                          borderRadius:
+                              BorderRadius.circular(
+                            12,
+                          ),
+                          child: Image.file(
+                            buktiPembayaran!,
+                            height: 220,
                           ),
                         ),
-
-                        const SizedBox(height: 12),
-
-                        const Text(
-                          'Scan QRIS untuk pembayaran instan melalui aplikasi bank atau e-wallet pilihan Anda.',
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                      ),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: 16),
+              if (metodePembayaran == "Tunai")
+                _buildCard(
+                  title: "Bayar Tunai",
+                  icon: Icons.payments,
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
 
-            // TUNAI
-            _buildCard(
-              title: 'Bayar Tunai',
-              icon: Icons.payments,
+                      const Text(
+                        "Silakan datang ke kantor koperasi dan lakukan pembayaran kepada petugas.",
+                      ),
 
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Bayar Tunai di Kantor Koperasi',
-                    style: TextStyle(
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      const SizedBox(height: 12),
+
+                      Container(
+                        padding:
+                            const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xffF0EDED),
+                          borderRadius:
+                              BorderRadius.circular(
+                            12,
+                          ),
+                        ),
+                        child: const Text(
+                          "Status akan diverifikasi oleh admin setelah pembayaran diterima.",
+                        ),
+                      ),
+                    ],
                   ),
+                ),
 
-                  const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
-                  const Text(
-                    'Kunjungi kantor terdekat dan tunjukkan ID Transaksi kepada petugas.',
-                  ),
+              // INFO
+              Container(
+                padding: const EdgeInsets.all(16),
 
-                  const SizedBox(height: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xffFFDAD6),
+                  borderRadius: BorderRadius.circular(16),
+                ),
 
-                  Container(
-                    padding: const EdgeInsets.all(12),
-
-                    decoration: BoxDecoration(
-                      color: const Color(0xffF0EDED),
-                      borderRadius:
-                          BorderRadius.circular(10),
+                child: const Row(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.warning,
+                      color: Colors.red,
                     ),
 
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'SET-98231',
+                    SizedBox(width: 12),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Silakan transfer sebelum 24 jam untuk menghindari pembatalan otomatis.',
+                          ),
+
+                          SizedBox(height: 8),
+
+                          Text(
+                            'Admin akan melakukan verifikasi dalam 1x24 jam setelah konfirmasi diterima.',
                             style: TextStyle(
-                              fontSize: 20,
                               fontWeight:
                                   FontWeight.bold,
-                              letterSpacing: 2,
                             ),
                           ),
-                        ),
-
-                        ElevatedButton.icon(
-                          onPressed: copyId,
-
-                          style:
-                              ElevatedButton.styleFrom(
-                            backgroundColor:
-                                primaryColor,
-                          ),
-
-                          icon: const Icon(
-                            Icons.copy,
-                            size: 18,
-                            color: Colors.white,
-                          ),
-
-                          label: const Text(
-                            'Salin',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // INFO
-            Container(
-              padding: const EdgeInsets.all(16),
-
-              decoration: BoxDecoration(
-                color: const Color(0xffFFDAD6),
-                borderRadius: BorderRadius.circular(16),
-              ),
-
-              child: const Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.warning,
-                    color: Colors.red,
-                  ),
-
-                  SizedBox(width: 12),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Silakan transfer sebelum 24 jam untuk menghindari pembatalan otomatis.',
-                        ),
-
-                        SizedBox(height: 8),
-
-                        Text(
-                          'Admin akan melakukan verifikasi dalam 2x24 jam setelah konfirmasi diterima.',
-                          style: TextStyle(
-                            fontWeight:
-                                FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        color: Colors.white,
-
-        child: SizedBox(
-          height: 55,
-
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      const SetoranBerhasilScreen(),
+                  ],
                 ),
-              );
-            },
-
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(14),
               ),
-            ),
 
-            child: const Text(
-              'Selesai',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+              const SizedBox(height: 24),
+
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: () async {
+
+                    if (metodePembayaran == "QRIS" &&
+                        buktiPembayaran == null) {
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Upload bukti pembayaran terlebih dahulu",
+                          ),
+                        ),
+                      );
+
+                      return;
+                    }
+
+                    String buktiUrl = "";
+
+                    if (metodePembayaran == "QRIS" &&
+                        buktiPembayaran != null) {
+
+                      final uploadedUrl =
+                          await UploadService.uploadImage(
+                        buktiPembayaran!,
+                      );
+
+                      if (uploadedUrl == null) {
+
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Upload bukti gagal",
+                            ),
+                          ),
+                        );
+
+                        return;
+                      }
+
+                      buktiUrl = uploadedUrl;
+                    }
+
+                    final transaksi =
+                        await TransaksiSetoranService.create(
+                      jenis: widget.jenis,
+                      nominal: widget.nominal,
+                      keterangan: widget.keterangan,
+                      metodePembayaran: metodePembayaran,
+                      buktiPembayaran: buktiUrl,
+                    );
+
+                    if (transaksi == null) {
+
+                      if (!mounted) return;
+
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Gagal menyimpan transaksi",
+                          ),
+                        ),
+                      );
+
+                      return;
+                    }
+
+                    if (!mounted) return;
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SetoranBerhasilScreen(
+                          nominal: widget.nominal,
+                          jenis: widget.jenis,
+                          metodePembayaran:
+                              metodePembayaran,
+                          transaksiId:
+                              transaksi["id"],
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Selesai',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
+
+              const SizedBox(height: 24),
+          ],
         ),
       ),
     );
@@ -512,7 +598,10 @@ class _KonfirmasiSetoranScreenState
         children: [
           Row(
             children: [
-              const Icon(Icons.info),
+              Icon(
+                icon,
+                color: primaryColor,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(title),

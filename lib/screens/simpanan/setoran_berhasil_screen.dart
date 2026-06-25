@@ -1,14 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../dashboard_screen.dart';
+import '../riwayat_screen.dart';
+import 'package:intl/intl.dart';
 
 class SetoranBerhasilScreen extends StatelessWidget {
-  const SetoranBerhasilScreen({super.key});
+
+  final String transaksiId;
+  final String nominal;
+  final String jenis;
+  final String metodePembayaran;
+
+  const SetoranBerhasilScreen({
+    super.key,
+    required this.transaksiId,
+    required this.nominal,
+    required this.jenis,
+    required this.metodePembayaran,
+  });
+
+  String get currentDate {
+    final now = DateTime.now();
+
+    return
+        "${now.day}/${now.month}/${now.year} "
+        "${now.hour}:${now.minute}";
+  }
+
+  String formatRupiah(String nominal) {
+    final number =
+        int.tryParse(nominal) ?? 0;
+
+    return NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: '',
+      decimalDigits: 0,
+    ).format(number);
+  }
 
   static const Color primaryColor = Color(0xFFAF101A);
 
   void copyTransactionId(BuildContext context) {
-    Clipboard.setData(const ClipboardData(text: 'TRX-20231024-0091'));
+    Clipboard.setData(
+      ClipboardData(
+        text: transaksiId,
+      ),
+    );
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('ID transaksi berhasil disalin')),
@@ -102,7 +139,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                                 ),
 
                                 child: const Icon(
-                                  Icons.check_circle,
+                                  Icons.hourglass_top,
                                   color: Colors.white,
                                   size: 48,
                                 ),
@@ -112,7 +149,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                             const SizedBox(height: 20),
 
                             const Text(
-                              'Setoran Berhasil',
+                              'Menunggu Verifikasi',
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -122,7 +159,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                             const SizedBox(height: 8),
 
                             const Text(
-                              'Dana Anda telah berhasil ditambahkan ke saldo.',
+                              'Bukti pembayaran berhasil dikirim dan sedang menunggu verifikasi admin.',
                               textAlign: TextAlign.center,
                               style: TextStyle(color: Colors.grey),
                             ),
@@ -144,7 +181,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
 
-                          child: const Column(
+                          child: Column(
                             children: [
                               Text(
                                 'JUMLAH SETORAN',
@@ -158,8 +195,8 @@ class SetoranBerhasilScreen extends StatelessWidget {
                               SizedBox(height: 8),
 
                               Text(
-                                'Rp 500.000',
-                                style: TextStyle(
+                                'Rp ${formatRupiah(nominal)}',
+                                style: const TextStyle(
                                   color: primaryColor,
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
@@ -201,7 +238,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                                     ),
 
                                     decoration: BoxDecoration(
-                                      color: Colors.green.shade100,
+                                      color: Colors.orange.shade100,
                                       borderRadius: BorderRadius.circular(20),
                                     ),
 
@@ -209,18 +246,18 @@ class SetoranBerhasilScreen extends StatelessWidget {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
-                                          Icons.verified,
+                                          Icons.pending_actions,
                                           size: 14,
-                                          color: Colors.green,
+                                          color: Colors.orange,
                                         ),
 
                                         SizedBox(width: 4),
 
                                         Text(
-                                          'Berhasil',
+                                          'Menunggu Verifikasi',
                                           style: TextStyle(
                                             fontSize: 11,
-                                            color: Colors.green,
+                                            color: Colors.orange,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -234,51 +271,70 @@ class SetoranBerhasilScreen extends StatelessWidget {
 
                               _detailRow(
                                 'Jenis Transaksi',
-                                'Simpanan Sukarela',
+                                jenis,
                               ),
 
                               _detailRow(
                                 'Tanggal & Waktu',
-                                '24 Okt 2023, 14:30 WIB',
+                                currentDate,
                               ),
 
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-
-                                crossAxisAlignment: CrossAxisAlignment.start,
-
-                                children: [
-                                  const Text(
-                                    'ID Transaksi',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-
-                                  Row(
-                                    children: [
-                                      const Text(
-                                        'TRX-20231024-0091',
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 14),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        'ID Transaksi',
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey,
                                         ),
                                       ),
+                                    ),
 
-                                      IconButton(
-                                        onPressed: () =>
-                                            copyTransactionId(context),
+                                    Expanded(
+                                      flex: 5,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Flexible(
+                                            child: SelectableText(
+                                              transaksiId,
+                                              textAlign: TextAlign.end,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
 
-                                        icon: const Icon(
-                                          Icons.copy,
-                                          size: 18,
-                                          color: primaryColor,
-                                        ),
+                                          IconButton(
+                                            onPressed: () =>
+                                                copyTransactionId(context),
+                                            icon: const Icon(
+                                              Icons.copy,
+                                              size: 18,
+                                              color: primaryColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
 
-                              _detailRow('Sumber Dana', 'Transfer Bank BCA'),
+                              _detailRow(
+                                'Metode Pembayaran',
+                                metodePembayaran,
+                              ),
+
+                              _detailRow(
+                                'Status',
+                                'Pending',
+                              ),
 
                               const SizedBox(height: 16),
                             ],
@@ -287,18 +343,27 @@ class SetoranBerhasilScreen extends StatelessWidget {
 
                         const SizedBox(height: 20),
 
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-
-                          child: Text(
-                            '"Setoran Anda membantu pengembangan usaha mikro di lingkungan RW 04. Terima kasih atas partisipasi aktif Anda."',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontStyle: FontStyle.italic,
-                            ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xffFFF3CD),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        ),
+                          child: const Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Colors.orange,
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Setoran akan diverifikasi maksimal 1x24 jam. Setelah disetujui saldo simpanan akan otomatis bertambah.',
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),
@@ -354,7 +419,14 @@ class SetoranBerhasilScreen extends StatelessWidget {
                         height: 56,
 
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const TransactionHistoryScreen()),
+                              (route) => false,
+                            );
+                          },
 
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xffE4BEBA)),
@@ -365,7 +437,7 @@ class SetoranBerhasilScreen extends StatelessWidget {
                           ),
 
                           child: const Text(
-                            'Unduh Resi',
+                            'Lihat Riwayat Setoran',
                             style: TextStyle(
                               color: primaryColor,
                               fontWeight: FontWeight.bold,
