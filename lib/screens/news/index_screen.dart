@@ -1,10 +1,13 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../config/api_config.dart';
 import 'package:flutter/material.dart';
 import 'show_screen.dart';
 
 class BeritaPage extends StatefulWidget {
   const BeritaPage({super.key});
 
-  static const Color primaryColor =Color(0xffAF101A);
+  static const Color primaryColor = Color(0xffAF101A);
 
   @override
   State<BeritaPage> createState() => _BeritaPageState();
@@ -12,13 +15,109 @@ class BeritaPage extends StatefulWidget {
 
 class _BeritaPageState extends State<BeritaPage> {
   String selectedCategory = 'Semua';
+  List news = [];
+  bool loading = true;
+  String searchText = '';
 
-  final TextEditingController searchController =
-      TextEditingController();
-      
-  @override    
+  @override
+  void initState() {
+    super.initState();
+
+    loadNews();
+  }
+
+  String formatTanggal(String date) {
+    try {
+      final parsed = DateTime.parse(date);
+
+      const bulan = [
+        '',
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember',
+      ];
+
+      return "${parsed.day} "
+          "${bulan[parsed.month]} "
+          "${parsed.year}";
+    } catch (_) {
+      return date;
+    }
+  }
+
+  Future<void> loadNews() async {
+    try {
+
+      final response = await http.get(
+        Uri.parse(
+          "${ApiConfig.baseUrl}/news",
+        ),
+      );
+
+      debugPrint(
+        "STATUS : ${response.statusCode}",
+      );
+
+      debugPrint(
+        "BODY : ${response.body}",
+      );
+
+      if (response.statusCode == 200) {
+
+        final result =
+            jsonDecode(response.body);
+
+        setState(() {
+          news = result["data"];
+          loading = false;
+        });
+
+        for (var item in news) {
+          debugPrint(
+            "ITEM NEWS = $item",
+          );
+        }
+
+      }
+
+    } catch (e) {
+
+      debugPrint(
+        "ERROR NEWS : $e",
+      );
+
+      setState(() {
+        loading = false;
+      });
+
+    }
+
+  }
+
+  final TextEditingController searchController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
-    
+    final filteredNews =
+    selectedCategory == "Semua"
+      ? news
+      : news.where((item) {
+          return item["kategori"]
+                  .toString()
+                  .toLowerCase() ==
+              selectedCategory
+                  .toLowerCase();
+        }).toList();
+  
     return Scaffold(
       backgroundColor: const Color(0xffFCF9F8),
 
@@ -26,10 +125,7 @@ class _BeritaPageState extends State<BeritaPage> {
         backgroundColor: const Color(0xffFCF9F8),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Color(0xffAF101A),
-          ),
+          icon: const Icon(Icons.arrow_back, color: Color(0xffAF101A)),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -42,12 +138,7 @@ class _BeritaPageState extends State<BeritaPage> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              0,
-              16,
-              12,
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
@@ -56,8 +147,7 @@ class _BeritaPageState extends State<BeritaPage> {
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -78,51 +168,37 @@ class _BeritaPageState extends State<BeritaPage> {
                 children: [
                   _categoryChip('Semua'),
                   _categoryChip('Kegiatan'),
+                  _categoryChip('Berita'),
                   _categoryChip('Edukasi'),
                   _categoryChip('Pengumuman'),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
+      const SizedBox(height: 20),
 
-            // LIST BERITA
-            _newsCard(context,
-              kategori: 'Edukasi',
-              judul:
-                  'Tips Mengelola Simpanan Sukarela dengan Bijak',
-              deskripsi:
-                  'Pelajari cara mengalokasikan dana cadangan koperasi untuk keperluan darurat keluarga...',
-              waktu: '2 jam yang lalu',
-              image:
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuBeQ5soJxEMFQ4g4R2wYpn1mzTYqkw0bcAQaqWoihrWTEwnJcPRp8VJ-3fL-DfS_CdJW-uMGfp5iwTVaJ4X6QXUakDtKqLmojnrevCjVnbO0cd9aaeACIPosO9PXOiA0Bp7HvTyxTfTbS6SBQXapXFkZcoVyDCketsDNrs4iD15OW3WsSCzhcI0GE96t6I5irWEF23fUw4M2TGalajgUZFa8xanxF3Yl_3b8ONEq5qNUj1vDQNX2swq3tR7Cvx3UD3Fo1HTjKaWorHZ',
-            ),
-
-            const SizedBox(height: 16),
-
-            _newsCard(context,
-              kategori: 'Kegiatan',
-              judul:
-                  'Penyaluran Modal Usaha Tahap II bagi UMKM',
-              deskripsi:
-                  'Koperasi Desa telah menyalurkan dana bantuan modal kepada 20 pedagang lokal di pasar utama...',
-              waktu: 'Kemarin',
-              image:
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuCP70P_k4gGlVuXP2N7q9KJB6-T5y8AwjOknpEyPXkfCBXlxBcIMhVBcKovDwguYKknw2bGDw7ZAK9S1LazhXN_VHS9-z-g2JL3XDB-YH0DBSr1TmuaLaqen1F4HVmuYYkSB8z30QibmqLvaiV3H3pcFBBgiJ10vqLftB5kOX-9r1EM-yfxr4ICzAYPU-jAHs3oozhKX8qKSsbC2-l0spRVG7tKCY2o-tDG0xGO3Ed14v6ct16tU3wnsaAryKgxMVqlFCu0a5R06c8V',
-            ),
-
-            const SizedBox(height: 16),
-
-            _newsCard(
-              context,
-              kategori: 'Pengumuman',
-              judul:
-                  'Jadwal Libur Operasional Kantor Koperasi',
-              deskripsi:
-                  'Sehubungan dengan libur nasional, layanan tatap muka akan ditutup sementara...',
-              waktu: '3 hari yang lalu',
-              image:
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuDz7AulAEzPpZdBojJcEMcbXrpT2V09RwU_6dtK3KLTANBQi5asRPFfkVTUXh1rTJoSF55f6AvdwoQ01cjpOWWGIPLza6hIb_5MQP_5p0eNOntAWAO-0mofIMy25_VrR0QGDeOc0vmECKVNB1qyeGq_hqauDGnJmcdEq3Ew4qDfqG1ITDqZKgj-xoKtt0lN5-6AiKCUTUENf16N9s22PHStZfi47fDhlFlyufNF7TAQwg9_RzKC9cl0JhcwcPIyBwyMyfK5uMgaOzRb',
+      // LIST BERITA
+      loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: filteredNews.length,
+              itemBuilder: (context, index) {
+                final item = filteredNews[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _newsCard(
+                    context,
+                    kategori: item["kategori"]?.toString() ?? "Tidak Ada Kategori",
+                    judul: item["judul"] ?? "",
+                    deskripsi: item["konten"] ?? "",
+                    waktu: formatTanggal(item["created_at"]),
+                    image: item["gambar_url"] ?? "",
+                    newsData: item,
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -131,22 +207,17 @@ class _BeritaPageState extends State<BeritaPage> {
   }
 
   Widget _categoryChip(String title) {
-    final bool isSelected =
-        selectedCategory == title;
+    final bool isSelected = selectedCategory == title;
 
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(title),
         selected: isSelected,
-        selectedColor:
-            BeritaPage.primaryColor,
-        backgroundColor:
-            const Color(0xffEAE7E7),
+        selectedColor: BeritaPage.primaryColor,
+        backgroundColor: const Color(0xffEAE7E7),
         labelStyle: TextStyle(
-          color: isSelected
-              ? Colors.white
-              : Colors.black54,
+          color: isSelected ? Colors.white : Colors.black54,
           fontWeight: FontWeight.w600,
         ),
         onSelected: (value) {
@@ -158,39 +229,38 @@ class _BeritaPageState extends State<BeritaPage> {
     );
   }
 
-  Widget _newsCard(BuildContext context,{
+  Widget _newsCard(
+    BuildContext context, {
     required String kategori,
     required String judul,
     required String deskripsi,
     required String waktu,
     required String image,
+    required Map newsData,
   }) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                const DetailBeritaScreen(),
-          ),
+          MaterialPageRoute(builder: (_) =>
+          DetailBeritaScreen(
+            news: newsData,
+          ),),
         );
       },
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(
-            color: const Color(0xffE4BEBE),
-          ),
+          border: Border.all(color: const Color(0xffE4BEBE)),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     kategori,
@@ -207,9 +277,7 @@ class _BeritaPageState extends State<BeritaPage> {
                     judul,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
 
                   const SizedBox(height: 6),
@@ -218,21 +286,14 @@ class _BeritaPageState extends State<BeritaPage> {
                     deskripsi,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 13,
-                    ),
+                    style: const TextStyle(color: Colors.black54, fontSize: 13),
                   ),
 
                   const SizedBox(height: 8),
 
                   Row(
                     children: [
-                      const Icon(
-                        Icons.schedule,
-                        size: 14,
-                        color: Colors.grey,
-                      ),
+                      const Icon(Icons.schedule, size: 14, color: Colors.grey),
                       const SizedBox(width: 4),
                       Text(
                         waktu,
@@ -250,14 +311,22 @@ class _BeritaPageState extends State<BeritaPage> {
             const SizedBox(width: 12),
 
             ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(12),
-              child: Image.network(
-                image,
-                width: 90,
-                height: 90,
-                fit: BoxFit.cover,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              child: image.isNotEmpty
+                ? Image.network(
+                    image,
+                    width: 90,
+                    height: 90,
+                    fit: BoxFit.cover,
+                  )
+                : Container(
+                    width: 90,
+                    height: 90,
+                    color: Colors.grey.shade300,
+                    child: const Icon(
+                      Icons.article,
+                    ),
+                  ),
             ),
           ],
         ),
