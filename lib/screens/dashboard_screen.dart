@@ -25,11 +25,20 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool hasNotification = true;
+
   String namaUser = "";
-  String saldoUser = "0";
   String emailUser = "";
   String statusUser = "";
   String tipeKeanggotaan = "";
+
+  double simpananPokok = 0;
+  double simpananWajib = 0;
+  double simpananSukarela = 0;
+  double totalSaldo = 0;
+
+  int jumlahTunggakan = 0;
+  double totalTunggakan = 0;
+
   bool loading = true;
 
   @override
@@ -86,6 +95,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           });
 
+            await loadSaldo(
+              data["id"],
+            );
+
+            await loadTagihan(
+              data["id"],
+            );
         }
 
       } catch (e) {
@@ -96,6 +112,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       }
     }
+
+    Future<void> loadSaldo(String userId) async {
+      try {
+        final response = await http.get(
+          Uri.parse(
+            "${ApiConfig.baseUrl}/saldo/$userId",
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          final result =
+              jsonDecode(response.body);
+
+          final data =
+              result["data"];
+
+          setState(() {
+            simpananPokok =
+                (data["simpanan_pokok"] ?? 0)
+                    .toDouble();
+
+            simpananWajib =
+                (data["simpanan_wajib"] ?? 0)
+                    .toDouble();
+
+            simpananSukarela =
+                (data["simpanan_sukarela"] ?? 0)
+                    .toDouble();
+
+            totalSaldo =
+                (data["saldo"] ?? 0)
+                    .toDouble();
+          });
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+    }
+
+    Future<void> loadTagihan(String userId) async {
+      try {
+        final response = await http.get(
+          Uri.parse(
+            "${ApiConfig.baseUrl}/tagihan/user/$userId",
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          final result = jsonDecode(response.body);
+          final data = result["data"];
+
+          setState(() {
+            jumlahTunggakan =
+                data["jumlah_bulan"] ?? 0;
+
+            totalTunggakan =
+                (data["total_tunggakan"] ?? 0)
+                    .toDouble();
+          });
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+    }
+
+  String rupiah(num value) {
+    return value
+        .toStringAsFixed(0)
+        .replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (m) => '${m[1]}.',
+        );
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -164,22 +253,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
             ],
-          ),
-
-          Padding(
-            padding:
-                const EdgeInsets.only(
-              right: 15,
-            ),
-
-            child: CircleAvatar(
-              backgroundImage:
-                  const AssetImage(
-                'assets/images/logo.png',
-              ),
-
-              radius: 20,
-            ),
           ),
         ],
       ),
@@ -305,7 +378,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           const SizedBox(width: 8),
 
                           Text(
-                            saldoUser,
+                            rupiah(totalSaldo),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 32,
@@ -324,6 +397,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             
+            const SizedBox(height: 15),
+
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius:
+                    BorderRadius.circular(20),
+              ),
+              child: Column(
+                children: [
+
+                  buildInfoRow(
+                    "Simpanan Pokok",
+                    "Rp ${rupiah(simpananPokok)}",
+                  ),
+
+                  const Divider(),
+
+                  buildInfoRow(
+                    "Simpanan Wajib",
+                    "Rp ${rupiah(simpananWajib)}",
+                  ),
+
+                  const Divider(),
+
+                  buildInfoRow(
+                    "Simpanan Sukarela",
+                    "Rp ${rupiah(simpananSukarela)}",
+                  ),
+
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: jumlahTunggakan > 0
+                    ? Colors.orange.shade50
+                    : Colors.green.shade50,
+                borderRadius:
+                    BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+
+                  Icon(
+                    jumlahTunggakan > 0
+                        ? Icons.warning
+                        : Icons.check_circle,
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Text(
+                      jumlahTunggakan > 0
+                          ? "Tunggakan $jumlahTunggakan bulan\nRp ${rupiah(totalTunggakan)}"
+                          : "Tidak ada tunggakan simpanan wajib",
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
             const SizedBox(height: 35),
 
@@ -486,7 +626,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const DetailBeritaScreen(),
+                    builder: (_) => const DetailBeritaScreen(news:{},),
                   ),
                 );
               },
@@ -511,7 +651,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const DetailBeritaScreen(),
+                    builder: (_) => const DetailBeritaScreen(news: {},),
                   ),
                 );
               },
@@ -654,6 +794,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ======================
   // NEWS CARD
   // ======================
+
+  Widget buildInfoRow(
+    String title,
+    String value,
+  ) {
+    return Row(
+      mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
+      children: [
+
+        Text(title),
+
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget modernNewsCard({
     required String category,

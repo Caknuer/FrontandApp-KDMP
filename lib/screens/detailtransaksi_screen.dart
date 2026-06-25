@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class DetailTransaksiScreen extends StatelessWidget {
   final Map<String, dynamic> transaction;
@@ -13,7 +14,36 @@ class DetailTransaksiScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String transactionId = 'TRX-98231';
+    final String transactionId = transaction['id'] ?? '-';
+    final status =
+        transaction['status'] ?? '';
+
+    String statusText = 'Menunggu';
+    Color statusColor = Colors.orange;
+    IconData statusIcon = Icons.schedule;
+
+    if (status == 'approved') {
+      statusText = 'Berhasil';
+      statusColor = Colors.green;
+      statusIcon = Icons.check_circle;
+    } else if (status == 'rejected') {
+      statusText = 'Ditolak';
+      statusColor = Colors.red;
+      statusIcon = Icons.close;
+    }
+
+    Color statusBg = Colors.orange.shade100;
+      if (status == 'approved') {
+        statusBg = Colors.green.shade100;
+      } else if (status == 'rejected') {
+        statusBg = Colors.red.shade100;
+      }
+
+    final metode = transaction['metode_pembayaran'] ?? '';
+    final metodeIcon =
+        metode == "Tunai"
+            ? Icons.payments
+            : Icons.qr_code;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFCF9F8),
@@ -49,9 +79,8 @@ class DetailTransaksiScreen extends StatelessWidget {
             Container(
               width: 80,
               height: 80,
-
               decoration: BoxDecoration(
-                color: Color(0xFFE8F5E9),
+                color: statusBg,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -61,27 +90,27 @@ class DetailTransaksiScreen extends StatelessWidget {
                 ],
               ),
 
-              child: const Icon(
-                Icons.check_circle,
-                color: Colors.green,
+              child: Icon(
+                statusIcon,
+                color: statusColor,
                 size: 50,
               ),
             ),
 
             const SizedBox(height: 16),
 
-            const Text(
-              'Berhasil',
+            Text(
+              statusText,
               style: TextStyle(
+                color: statusColor,
                 fontSize: 24,
-                color: Colors.green,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
             const SizedBox(height: 8),
 
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
@@ -92,12 +121,18 @@ class DetailTransaksiScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '500.000',
-                  style: TextStyle(
+                  NumberFormat.currency(
+                    locale: 'id_ID',
+                    symbol: '',
+                    decimalDigits: 0,
+                  ).format(
+                    transaction['nominal'] ?? 0,
+                  ),
+                  style: const TextStyle(
                     fontSize: 34,
                     fontWeight: FontWeight.w800,
                   ),
-                ),
+                )
               ],
             ),
 
@@ -133,17 +168,31 @@ class DetailTransaksiScreen extends StatelessWidget {
 
                   _detailItem(
                     'Jenis Transaksi',
-                    'Simpanan Sukarela',
+                    transaction['jenis_simpanan'] ?? '-',
                   ),
 
                   _detailItem(
                     'Tanggal',
-                    '25 Oktober 2023',
+                    DateFormat(
+                      'dd MMMM yyyy',
+                      'id_ID',
+                    ).format(
+                      DateTime.parse(
+                        transaction['created_at'] ??
+                            DateTime.now().toIso8601String(),
+                      )
+                    ),
                   ),
 
                   _detailItem(
                     'Waktu',
-                    '10:45 WIB',
+                    DateFormat(
+                      'HH:mm',
+                    ).format(
+                      DateTime.parse(
+                        transaction['created_at'],
+                      ),
+                    ) + " WIB",
                   ),
 
                   Padding(
@@ -162,15 +211,13 @@ class DetailTransaksiScreen extends StatelessWidget {
                         ),
 
                         Row(
-                          children: const [
+                          children: [
                             Icon(
-                              Icons.qr_code,
-                              color: primaryColor,
-                              size: 20,
+                              metodeIcon,
                             ),
                             SizedBox(width: 6),
                             Text(
-                              'QRIS',
+                               transaction['metode_pembayaran'] ?? '-',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -195,7 +242,7 @@ class DetailTransaksiScreen extends StatelessWidget {
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
 
-                        children: const [
+                        children: [
 
                           Text(
                             'ID Transaksi',
@@ -207,19 +254,23 @@ class DetailTransaksiScreen extends StatelessWidget {
 
                           SizedBox(height: 4),
 
-                          Text(
-                            transactionId,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                          SizedBox(
+                            width: 180,
+                            child: Text(
+                              transactionId,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
+                          )
                         ],
                       ),
 
                       ElevatedButton.icon(
                         onPressed: () async {
                           await Clipboard.setData(
-                            const ClipboardData(
+                            ClipboardData(
                               text: transactionId,
                             ),
                           );
@@ -269,7 +320,7 @@ class DetailTransaksiScreen extends StatelessWidget {
 
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: null,
 
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(

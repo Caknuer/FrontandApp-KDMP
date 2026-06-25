@@ -7,6 +7,7 @@ import 'waiting_approval_screen.dart';
 import 'rejected_screen.dart';
 import 'register_screen.dart';
 import '../dashboard_screen.dart';
+import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -95,11 +96,10 @@ class _LoginScreenState
 
       }
 
-      final user =
-          result["data"];
+      final user = result["data"];
+      AuthService.currentUser = user;
 
-      final status =
-          user["status"];
+      final status = user["status"];
 
       if (!mounted) return;
 
