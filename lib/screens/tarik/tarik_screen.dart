@@ -236,7 +236,7 @@ class _TarikSimpananScreenState
 
                 ScaffoldMessenger.of(context)
                     .showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
                       "Gagal membuat penarikan",
                     ),
