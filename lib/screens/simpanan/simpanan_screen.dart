@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'konfirmasi_setoran_screen.dart';
 import '../../services/saldo_service.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../services/profile_service.dart';
+import '../../config/api_config.dart';
 
 class SetorSimpananPage extends StatefulWidget {
   const SetorSimpananPage({super.key});
@@ -14,11 +18,13 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
 
-  int jumlahBulan = 1;
-  bool loading = true;
   Map<String, dynamic>? saldoData;
   bool loadingSaldo = true;
   bool sudahBayarPokok = true;
+  bool loadingTagihan = false;
+  List<Map<String, dynamic>> tagihan = [];
+  List<String> selectedTagihan = [];
+  double totalTagihan = 0;
 
   late List<String> jenisSimpanan;
   String selectedJenis = '';
@@ -31,6 +37,61 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
       symbol: '',
       decimalDigits: 0,
     ).format(number);
+  }
+
+  String formatPeriode(String periode) {
+    final split = periode.split("-");
+    final tahun = int.parse(split[0]);
+    final bulan = int.parse(split[1]);
+    const namaBulan = [
+      "",
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember"
+    ];
+
+    return "${namaBulan[bulan]} $tahun";
+  }
+
+  String statusLabel(String status) {
+    switch (status) {
+      case "belum_bayar":
+        return "Belum Dibayar";
+
+      case "lunas":
+        return "Lunas";
+
+      case "belum_aktif":
+        return "Belum Aktif";
+
+      default:
+        return status;
+    }
+  }
+
+  Color statusColor(String status) {
+    switch (status) {
+      case "belum_bayar":
+        return Colors.orange;
+
+      case "lunas":
+        return Colors.green;
+
+      case "belum_aktif":
+        return Colors.grey;
+
+      default:
+        return Colors.black;
+    }
   }
 
   @override
@@ -56,11 +117,57 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
 
       setState(() {
         saldoData = data;
+
         loadingSaldo = false;
       });
+      loadTagihan();
     } catch (e) {
       setState(() {
         loadingSaldo = false;
+      });
+    }
+  }
+
+  Future<void> loadTagihan() async {
+    try {
+      setState(() {
+        loadingTagihan = true;
+        tagihan.clear();
+        selectedTagihan.clear();
+        totalTagihan = 0;
+      });
+
+      final profile =
+          await ProfileService.getProfile();
+      if (profile == null) {
+        return;
+      }
+
+      final userId =
+          profile["id"];
+      final response =
+          await http.get(
+
+        Uri.parse(
+          "${ApiConfig.baseUrl}/tagihan/detail/$userId",
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final json =
+            jsonDecode(response.body);
+        setState(() {
+          tagihan =
+              List<Map<String, dynamic>>.from(
+            json["data"]["bulan"],
+          );
+        });
+      }
+
+    } finally {
+
+      setState(() {
+        loadingTagihan = false;
       });
     }
   }
@@ -89,11 +196,26 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
     if (selectedJenis == "Simpanan Pokok") {
       amountController.text = "100000";
     } else if (selectedJenis == "Simpanan Wajib") {
-  amountController.text =
-      (10000 * jumlahBulan).toString();
+      amountController.text = totalTagihan.toInt().toString();
     } else {
       amountController.clear();
     }
+  }
+
+  void hitungTotalTagihan() {
+    totalTagihan = 0;
+    for (final item in tagihan) {
+      if (
+        selectedTagihan.contains(
+          item["periode"],
+        )
+      ) {
+        totalTagihan += (item["nominal"] ?? 0).toDouble();
+      }
+    }
+
+    amountController.text =
+        totalTagihan.toInt().toString();
   }
 
   @override
@@ -204,146 +326,138 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                   if (selectedJenis == "Simpanan Wajib")
                     Column(
                       children: [
-
                         Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF3CD),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.orange.shade300,
-                            ),
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.warning_amber_rounded,
-                                    color: Colors.orange,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "Tagihan Simpanan Wajib",
+                          child: loadingTagihan
+                          ? const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : tagihan.isEmpty
+                              ? const Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Text(
+                                    "Belum ada tagihan yang aktif.",
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Belum ada tunggakan",
-                              ),
-                            ],
-                          ),
-                        ),
+                                )
+                              : Column(
+                                  children:
+                                      tagihan.map((item) {
+                                    return Container(
+                                      margin:
+                                          const EdgeInsets.only(bottom: 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color: Colors.grey.shade300,
+                                        ),
+                                      ),
 
-                        const SizedBox(height: 16),
+                                      child: CheckboxListTile(
+                                        value:
+                                            selectedTagihan.contains(
+                                                item["periode"]),
+                                        onChanged:
+                                          item["status"] !=
+                                                  "belum_bayar"
+                                              ? null
+                                              : (value) {
+                                                  setState(() {
+                                                    if (value == true) {
+                                                      if (
+                                                        !selectedTagihan.contains(
+                                                          item["periode"],)
+                                                      ) {
+                                                        selectedTagihan.add(
+                                                          item["periode"],
+                                                        );
+                                                      }
+                                                    } else {
+                                                      selectedTagihan.remove(
+                                                        item["periode"],
+                                                      );
+                                                    }
+                                                    hitungTotalTagihan();
+                                                  });
+                                                },
+                                        title: Text(
+                                          formatPeriode(
+                                            item["periode"],
+                                          ),
 
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFFE4BEBA),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
 
-                              const Text(
-                                "Jumlah Bulan Pembayaran",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF5B403D),
+                                        subtitle: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if (
+                                              item["status"] !=
+                                              "belum_aktif"
+                                            )
+
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 6,),
+                                                child: Text(
+                                                  "Rp ${formatRupiah(item["nominal"].toString())}",
+                                                  style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+
+                                            const SizedBox(height: 6),
+
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 4,
+                                              ),
+
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    statusColor(
+                                                      item["status"],
+                                                    ).withAlpha(12),
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                              ),
+
+                                              child: Text(
+                                                statusLabel(
+                                                  item["status"],
+                                                ),
+
+                                                style: TextStyle(
+                                                  color: statusColor(
+                                                    item["status"],
+                                                  ),
+                                                  fontWeight:
+                                                      FontWeight.bold,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                 ),
                               ),
-
-                              const SizedBox(height: 12),
-
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      if (jumlahBulan > 1) {
-                                        setState(() {jumlahBulan--;
-                                          amountController.text =
-                                              (jumlahBulan * 10000).toString();
-                                          }
-                                        );
-                                      }
-                                    },
-                                    icon: const Icon(
-                                      Icons.remove_circle,
-                                      color: Color(0xFFAF101A),
-                                      size: 32,
-                                    ),
-                                  ),
-
-                                  Expanded(
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            "$jumlahBulan Bulan",
-                                            style: const TextStyle(
-                                              fontSize: 22,
-                                              fontWeight:
-                                                  FontWeight.bold,
-                                              color:
-                                                  Color(0xFFAF101A),
-                                            ),
-                                          ),
-
-                                          const SizedBox(height: 4),
-
-                                          Text(
-                                            "Rp ${formatRupiah((jumlahBulan * 10000).toString())}",
-                                            style: const TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-
-                                  IconButton(
-                                    onPressed: () {
-
-                                      setState(() {
-
-                                        jumlahBulan++;
-
-                                        amountController.text =
-                                            (jumlahBulan * 10000)
-                                                .toString();
-
-                                      });
-
-                                    },
-                                    icon: const Icon(
-                                      Icons.add_circle,
-                                      color: Color(0xFFAF101A),
-                                      size: 25,
-                                    ),
-                                  ),
-
-                                ],
-                              ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
 
                   const SizedBox(height: 15),
 
@@ -389,7 +503,7 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                               ),
                             ),
                           )
-                          else
+                        else
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -404,40 +518,41 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
 
                               const SizedBox(width: 8),
 
-                            Expanded(
-                              child: TextField(
-                                controller: amountController,
-                                readOnly: selectedJenis != "Simpanan Sukarela",
-                                keyboardType: TextInputType.number,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 38,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                                decoration: const InputDecoration(
-                                  hintText: '0',
-                                  hintStyle: TextStyle(color: Colors.white54),
-                                  border: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.white30,
-                                    ),
+                              Expanded(
+                                child: TextField(
+                                  controller: amountController,
+                                  readOnly:
+                                      selectedJenis != "Simpanan Sukarela",
+                                  keyboardType: TextInputType.number,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 38,
+                                    fontWeight: FontWeight.w800,
                                   ),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.white30,
+                                  decoration: const InputDecoration(
+                                    hintText: '0',
+                                    hintStyle: TextStyle(color: Colors.white54),
+                                    border: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.white30,
+                                      ),
                                     ),
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.white,
-                                      width: 2,
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.white30,
+                                      ),
+                                    ),
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
@@ -552,7 +667,10 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                         );
                       },
 
-                      icon: const Icon(Icons.arrow_forward, color: Colors.white),
+                      icon: const Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                      ),
 
                       label: const Text(
                         'Lanjutkan',
