@@ -37,13 +37,20 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     });
 
     final setoran = await TransaksiSetoranService.getByUser();
-
     final penarikan = await PenarikanService.getByUser();
 
     final allTransactions = [
-      ...setoran.map((e) => {...e, "tipe": "setoran"}),
+      ...setoran.map((e) {
+        final item = Map<String, dynamic>.from(e);
+        item["tipe"] = "setoran";
+        return item;
+      }),
 
-      ...penarikan.map((e) => {...e, "tipe": "penarikan"}),
+      ...penarikan.map((e) {
+        final item = Map<String, dynamic>.from(e);
+        item["tipe"] = "penarikan";
+        return item;
+      }),
     ];
 
     allTransactions.sort(
@@ -316,7 +323,9 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (_) =>
-                        DetailTransaksiScreen(transaction: transaction),
+                    DetailTransaksiScreen(
+                      transaction: Map<String, dynamic>.from(transaction),
+                    ),
                   ),
                 );
               },
