@@ -3,8 +3,16 @@ import 'editprofil_screen.dart';
 import 'dart:io';
 
 class DetailProfilScreen extends StatelessWidget {
+
   final File? profileImage;
-  const DetailProfilScreen({super.key, this.profileImage});
+
+  final Map<String, dynamic>? profile;
+
+  const DetailProfilScreen({
+    super.key,
+    this.profileImage,
+    this.profile,
+  });
 
   static const Color primaryColor = Color(0xFFAF101A);
 
@@ -40,13 +48,29 @@ class DetailProfilScreen extends StatelessWidget {
               Icons.edit,
               color: primaryColor,
             ),
-            onPressed: () {
-              Navigator.pushReplacement(
+            onPressed: () async {
+              final result =
+                  await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const EditProfileScreen(),
+                  builder: (context) =>
+                      EditProfileScreen(
+                    profile: profile,
+                    profileImage:
+                        profileImage,
+                  ),
                 ),
               );
+
+              if (result == true) {
+                if (!context.mounted) return;
+                Navigator.pop(
+                  context,
+                  true,
+                );
+
+              }
+
             },
           ),
         ],
@@ -69,14 +93,25 @@ class DetailProfilScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 40,
                           backgroundColor: Colors.grey.shade300,
-                          backgroundImage: profileImage != null ? FileImage(profileImage!) : null,
-                          child: profileImage == null
-                              ? Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: Colors.grey.shade600,
-                                )
-                              : null,
+                          backgroundImage:
+                          profileImage != null
+                              ? FileImage(profileImage!)
+                              : profile?["foto_profile_url"] != null &&
+                                      profile!["foto_profile_url"] != ""
+                                  ? NetworkImage(
+                                      profile!["foto_profile_url"],
+                                    )
+                                  : null,
+                          child:
+                            profileImage == null &&
+                                    (profile?["foto_profile_url"] == null ||
+                                        profile!["foto_profile_url"] == "")
+                                ? Icon(
+                                    Icons.person,
+                                    size: 40,
+                                    color: Colors.grey.shade600,
+                                  )
+                                : null,
                         ),
                         Positioned(
                           bottom: 0,
@@ -99,9 +134,9 @@ class DetailProfilScreen extends StatelessWidget {
 
                   const SizedBox(height: 14),
 
-                  const Text(
-                    'Budi Santoso',
-                    style: TextStyle(
+                  Text(
+                    profile?["nama"] ?? "-",
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -109,9 +144,9 @@ class DetailProfilScreen extends StatelessWidget {
 
                   const SizedBox(height: 4),
 
-                  const Text(
-                    'ID: KOP-2024-0891',
-                    style: TextStyle(
+                  Text(
+                    "ID: ${profile?["id"]?.toString().substring(0, 8) ?? "-"}",
+                    style: const TextStyle(
                       color: Colors.grey,
                       fontWeight: FontWeight.w500,
                     ),
@@ -157,7 +192,7 @@ class DetailProfilScreen extends StatelessWidget {
         ],
       ),
 
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
@@ -197,8 +232,10 @@ class DetailProfilScreen extends StatelessWidget {
           SizedBox(height: 2),
 
           Text(
-            'Anggota Biasa',
-            style: TextStyle(fontSize: 13),
+            profile?["tipe_keanggotaan"] ?? "-",
+            style: const TextStyle(
+              fontSize: 13,
+            ),
           ),
 
           SizedBox(height: 10),
@@ -214,8 +251,14 @@ class DetailProfilScreen extends StatelessWidget {
           SizedBox(height: 2),
 
           Text(
-            '12 Jan 2023',
-            style: TextStyle(fontSize: 13),
+            profile?["created_at"] != null
+                ? profile!["created_at"]
+                    .toString()
+                    .substring(0, 10)
+                : "-",
+            style: const TextStyle(
+              fontSize: 13,
+            ),
           ),
 
           SizedBox(height: 10),
@@ -231,13 +274,30 @@ class DetailProfilScreen extends StatelessWidget {
           SizedBox(height: 6),
 
           Chip(
-            backgroundColor: Color(0xffDDF5DD),
             visualDensity: VisualDensity.compact,
 
+            backgroundColor:
+                profile?["status"] == "approved"
+                    ? const Color(0xffDDF5D0)
+                    : profile?["status"] == "pending"
+                        ? const Color(0xffFFF3CD)
+                        : const Color(0xffFFDAD6),
+
             label: Text(
-              'AKTIF',
+
+              profile?["status"] == "approved"
+                  ? "ANGGOTA AKTIF"
+                  : profile?["status"] == "pending"
+                      ? "MENUNGGU PERSETUJUAN"
+                      : "TIDAK AKTIF",
+
               style: TextStyle(
-                color: Colors.green,
+                color:
+                    profile?["status"] == "approved"
+                        ? Colors.green.shade800
+                        : profile?["status"] == "pending"
+                            ? Colors.orange.shade800
+                            : Colors.red.shade800,
                 fontWeight: FontWeight.bold,
                 fontSize: 10,
               ),
@@ -301,31 +361,43 @@ class DetailProfilScreen extends StatelessWidget {
           _infoItem(
             Icons.badge_outlined,
             'NIK',
-            '3471021201850001',
+            profile?["nik"] ?? "-",
           ),
 
           _infoItem(
             Icons.person_outline,
             'Nama Lengkap',
-            'Budi Santoso',
+            profile?["nama"] ?? "-",
           ),
 
           _infoItem(
             Icons.cake_outlined,
             'Tempat, Tanggal Lahir',
-            'Sleman, 12 Januari 1983',
+            "${profile?["tempat_lahir"] ?? "-"}, ${profile?["tanggal_lahir"]?.toString().substring(0, 10) ?? "-"}",
           ),
 
           _infoItem(
             Icons.call_outlined,
             'Nomor Telepon',
-            '+62 812-3456-7890',
+            profile?["no_hp"] ?? "-",
           ),
 
           _infoItem(
             Icons.email_outlined,
             'Email',
-            'budi.santoso@email.com',
+            profile?["email"] ?? "-",
+          ),
+
+          _infoItem(
+            Icons.wc_outlined,
+            'Jenis Kelamin',
+            profile?["jenis_kelamin"] ?? "-",
+          ),
+
+          _infoItem(
+            Icons.work_outline,
+            'Pekerjaan',
+            profile?["pekerjaan"] ?? "-",
           ),
         ],
       ),
@@ -385,7 +457,19 @@ class DetailProfilScreen extends StatelessWidget {
           _infoItem(
             Icons.home_outlined,
             'Alamat Lengkap',
-            'Jl. Mawar Indah No. 45, RT 003 / RW 002, Kel. Sido Muncul, Kec. Gajah Mada, Sleman, Yogyakarta 55581',
+            profile?["alamat"] ?? "-",
+          ),
+
+          _infoItem(
+            Icons.account_circle_outlined,
+            'Username',
+            profile?["username"] ?? "-",
+          ),
+
+          _infoItem(
+            Icons.admin_panel_settings_outlined,
+            'Role',
+            profile?["role"] ?? "-",
           ),
         ],
       ),

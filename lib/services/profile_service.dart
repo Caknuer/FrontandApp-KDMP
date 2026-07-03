@@ -94,11 +94,21 @@ class ProfileService {
 
       );
 
-      return response.statusCode == 200;
+      print("STATUS : ${response.statusCode}");
+      print("BODY : ${response.body}");
 
-    } catch (e) {
+      if (response.statusCode == 200) {
+        return true;
+      }
 
+      print(response.body);
+      return false;
+
+    } catch (e, stackTrace) {
+
+      print("UPDATE PROFILE ERROR");
       print(e);
+      print(stackTrace);
 
       return false;
 
