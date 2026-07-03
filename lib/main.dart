@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/auth/splash_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'services/fcm_service.dart';
 
 Future<void> main() async {
 
@@ -17,6 +18,7 @@ Future<void> main() async {
     options:
         DefaultFirebaseOptions.currentPlatform,
   );
+  await FCMService.initialize();
 
   runApp(
     const MyApp(),
