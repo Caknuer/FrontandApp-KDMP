@@ -62,15 +62,15 @@ class DetailPengumumanPage extends StatelessWidget {
               ),
             ),
             centerTitle: true,
-            actions: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share,
-                  color: Color(0xffAF101A),
-                ),
-              ),
-            ],
+            // actions: [
+            //   IconButton(
+            //     onPressed: () {},
+            //     icon: const Icon(
+            //       Icons.share,
+            //       color: Color(0xffAF101A),
+            //     ),
+            //   ),
+            // ],
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
