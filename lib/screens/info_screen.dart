@@ -1,13 +1,64 @@
 import 'package:flutter/material.dart';
+import '../services/company_service.dart';
+import '../services/legality_service.dart';
+import '../services/management_service.dart';
 import 'dashboard_screen.dart';
 import 'riwayat_screen.dart';
 import 'page-profil/profile_screen.dart';
 
-class InfoScreen extends StatelessWidget {
-  const InfoScreen({super.key});
+class InfoScreen extends StatefulWidget {
+
+  const InfoScreen({
+    super.key,
+  });
+
+  @override
+  State<InfoScreen> createState() =>
+      _InfoScreenState();
+
+}
+
+class _InfoScreenState
+    extends State<InfoScreen> {
+  
+  Map<String, dynamic>? company;
+  Map<String, dynamic>? legality;
+  List<dynamic> management = [];
+  bool loading = true;
+
+  Future<void> loadData() async {
+    final results = await Future.wait([
+      CompanyService.getProfile(),
+      LegalityService.getLegality(),
+      ManagementService.getManagement(),
+    ]);
+
+    company = results[0] as Map<String, dynamic>?;
+    legality = results[1] as Map<String, dynamic>?;
+    management = results[2] as List<dynamic>;
+
+    if (mounted) {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: const Color(0xffFCF9F8),
 
@@ -57,8 +108,10 @@ class InfoScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                     ),
 
-                    child: const Text(
-                      'Sejak 1998',
+                    child: Text(
+                      company?["tahun_berdiri"] != null
+                        ? "Sejak ${company!["tahun_berdiri"]}"
+                        : "Koperasi Desa",
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -66,22 +119,42 @@ class InfoScreen extends StatelessWidget {
                     ),
                   ),
 
+                  const SizedBox(height: 12,),
+
+                  Text(
+                    company?["nama_koperasi"] ??
+                        "",
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
                   const SizedBox(height: 20),
 
-                  const Text(
-                    'Membangun Ekonomi Desa Berkelanjutan',
-                    style: TextStyle(
+                  Text(
+
+                    company?["slogan"] ??
+                        "Koperasi Desa Merah Putih",
+
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
+
                   ),
 
                   const SizedBox(height: 14),
 
-                  const Text(
-                    'Koperasi Desa hadir sebagai pilar kemandirian ekonomi masyarakat, memberikan akses layanan keuangan yang adil dan transparan.',
-                    style: TextStyle(color: Colors.white70, height: 1.5),
+                  Text(
+                    company?["deskripsi"] ??
+                        "-",
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      height: 1.5,
+                    ),
                   ),
                 ],
               ),
@@ -98,7 +171,8 @@ class InfoScreen extends StatelessWidget {
                       icon: Icons.visibility,
                       title: 'Visi Kami',
                       content:
-                          'Menjadi koperasi modern berbasis teknologi untuk kesejahteraan masyarakat desa.',
+                        company?["visi"] ??
+                        "-",
                     ),
                   ),
                   SizedBox(width: 16),
@@ -107,7 +181,8 @@ class InfoScreen extends StatelessWidget {
                       icon: Icons.rocket_launch,
                       title: 'Misi Utama',
                       content:
-                          'Digitalisasi layanan dan pemberdayaan UMKM lokal.',
+                        company?["misi"] ??
+                        "-",
                     ),
                   ),
                 ],
@@ -123,26 +198,33 @@ class InfoScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            SizedBox(
-              height: 250,
-
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  buildPersonCard(
-                    name: 'Ir. Ahmad Subarjo',
-                    position: 'Ketua Umum',
+            management.isEmpty
+              ? Container(
+                  height: 150,
+                  alignment: Alignment.center,
+                  child: const Text(
+                    "Belum ada data pengurus",
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
                   ),
+                )
+              : SizedBox(
+                  height: 250,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: management.length,
+                    itemBuilder: (context, index) {
+                      final item = management[index];
 
-                  buildPersonCard(
-                    name: 'Siti Aminah, M.Ak',
-                    position: 'Bendahara',
+                      return buildPersonCard(
+                        name: item["nama"] ?? "-",
+                        position: item["jabatan"] ?? "-",
+                        photo: item["foto_url"]?.toString(),
+                      );
+                    },
                   ),
-
-                  buildPersonCard(name: 'Budi Santoso', position: 'Sekretaris'),
-                ],
-              ),
-            ),
+                ),
 
             const SizedBox(height: 28),
 
@@ -166,37 +248,61 @@ class InfoScreen extends StatelessWidget {
 
               child: Column(
                 children: [
-                  Container(
-                    height: 180,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                  // Container(
+                  //   height: 180,
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.grey.shade300,
+                  //     borderRadius: BorderRadius.circular(20),
+                  //   ),
 
-                    child: const Center(
-                      child: Icon(
-                        Icons.map,
-                        size: 70,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
+                  //   child: const Center(
+                  //     child: Icon(
+                  //       Icons.map,
+                  //       size: 70,
+                  //       color: Colors.grey,
+                  //     ),
+                  //   ),
+                  // ),
 
-                  const SizedBox(height: 20),
+                  // const SizedBox(height: 20),
 
                   buildInfoRow(
                     Icons.location_on,
                     'Alamat',
-                    'Jl. Raya Desa Makmur No.12, Sleman',
+                    company?["alamat"] ?? "-",
                   ),
 
                   const SizedBox(height: 16),
 
-                  buildInfoRow(Icons.call, 'Telepon', '(0274) 123-456'),
+                  buildInfoRow(
+                    Icons.call,
+                    'Telepon',
+                    company?["telepon"] ?? "-",
+                  ),
 
                   const SizedBox(height: 16),
 
-                  buildInfoRow(Icons.mail, 'Email', 'halo@kopdesa.id'),
+                  buildInfoRow(
+                    Icons.mail,
+                    'Email',
+                    company?["email"] ?? "-",
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  buildInfoRow(
+                    Icons.language,
+                    'Website',
+                    company?["website"] ?? "-",
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  buildInfoRow(
+                    Icons.access_time,
+                    'Jam Operasional',
+                    company?["jam_operasional"] ?? "-",
+                  ),
                 ],
               ),
             ),
@@ -228,16 +334,21 @@ class InfoScreen extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   const Text(
-                    'Legalitas Terjamin',
+                    'Legalitas Koperasi',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 12),
 
-                  const Text(
-                    'Koperasi Desa telah terdaftar resmi dan diawasi oleh Kementerian Koperasi dan UKM.',
+                  Text(
+                    legality?["nomor_badan_hukum"] != null
+                        ? "Koperasi telah memiliki legalitas resmi dan terdaftar sesuai Nomor Badan Hukum."
+                        : "Legalitas koperasi belum tersedia.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black54, height: 1.5),
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      height: 1.5,
+                    ),
                   ),
 
                   const SizedBox(height: 20),
@@ -248,7 +359,7 @@ class InfoScreen extends StatelessWidget {
                     runSpacing: 12,
                     children: [
                       Column(
-                        children: const [
+                        children: [
                           Text(
                             'No. BH',
                             style: TextStyle(
@@ -257,12 +368,15 @@ class InfoScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 4),
-                          Text('182/BH/M.KUKM/2021'),
+                          Text(
+                            legality?["nomor_badan_hukum"] ?? "-",
+                          ),
                         ],
                       ),
 
                       Column(
-                        children: const [
+                        children:
+                         [
                           Text(
                             'NIB',
                             style: TextStyle(
@@ -271,7 +385,29 @@ class InfoScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 4),
-                          Text('912000345678'),
+                          Text(
+                            legality?["nomor_nib"] ?? "-",
+                          ),
+                        ],
+                      ),
+
+                      Column(
+                        children: [
+
+                          const Text(
+                            'NPWP',
+                            style: TextStyle(
+                              color: Color(0xffAF101A),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 4),
+
+                          Text(
+                            legality?["nomor_npwp"] ?? "-",
+                          ),
+
                         ],
                       ),
                     ],
@@ -366,12 +502,10 @@ class InfoScreen extends StatelessWidget {
 
           Text(
             content,
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: Colors.black54,
               fontSize: 13,
-              height: 1.5,
+              height: 1.6,
             ),
           ),
         ],
@@ -379,7 +513,11 @@ class InfoScreen extends StatelessWidget {
     );
   }
 
-  Widget buildPersonCard({required String name, required String position}) {
+    Widget buildPersonCard({
+      required String name,
+      required String position,
+      String? photo,
+    }) {
     return Container(
       width: 200,
       margin: const EdgeInsets.only(right: 16),
@@ -395,10 +533,19 @@ class InfoScreen extends StatelessWidget {
 
       child: Column(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.grey,
-            child: Icon(Icons.person, size: 40, color: Colors.white),
+            backgroundColor: Colors.grey.shade200,
+            backgroundImage: photo != null && photo.isNotEmpty
+              ? NetworkImage(photo)
+              : null,
+            child: photo == null || photo.isEmpty
+              ? const Icon(
+                  Icons.person,
+                  size: 40,
+                  color: Colors.grey,
+                )
+            : null,
           ),
 
           const SizedBox(height: 16),

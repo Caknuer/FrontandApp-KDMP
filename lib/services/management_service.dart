@@ -11,7 +11,7 @@ class ManagementService {
 
       final response = await http.get(
         Uri.parse(
-          "${ApiConfig.baseUrl}/management",
+          "${ApiConfig.baseUrl}/managements",
         ),
       );
 
