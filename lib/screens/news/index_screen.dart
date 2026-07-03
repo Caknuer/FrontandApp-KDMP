@@ -245,7 +245,7 @@ class _BeritaPageState extends State<BeritaPage> {
           context,
           MaterialPageRoute(builder: (_) =>
           DetailBeritaScreen(
-            news: newsData,
+            id: newsData["id"],
           ),),
         );
       },

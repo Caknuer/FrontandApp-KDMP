@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../services/news_service.dart';
 
-class DetailBeritaScreen extends StatelessWidget {
-  final Map news;
-  const DetailBeritaScreen({
-    super.key,
-    required this.news,
-  });
+class DetailBeritaScreen extends StatefulWidget {
+    final String id;
+    const DetailBeritaScreen({
+      super.key,
+      required this.id,
+    });
+
+    @override
+    State<DetailBeritaScreen> createState() =>
+        _DetailBeritaScreenState();
+
+  }
+
+class _DetailBeritaScreenState extends State<DetailBeritaScreen> {
+
+  Map<String, dynamic>? news;
+  bool isLoading = true;
 
   String formatTanggal(String date) {
     try {
@@ -36,10 +48,42 @@ class DetailBeritaScreen extends StatelessWidget {
     }
   }
 
+  Future<void> loadNews() async {
+    final result =
+        await NewsService.getById(widget.id);
+    if (!mounted) return;
+    setState(() {
+      news = result;
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadNews();
+  }
+
   @override
   Widget build(BuildContext context) {
     const primaryColor = Color(0xffAF101A);
-
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    if (news == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            "Berita tidak ditemukan",
+          ),
+        ),
+      );
+    }
+    final data = news!;
     return Scaffold(
       backgroundColor: const Color(0xffFCF9F8),
 
@@ -56,17 +100,17 @@ class DetailBeritaScreen extends StatelessWidget {
           'Detail Info',
           style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            color: Colors.black87,
-            onPressed: () async {
-              await Share.share(
-                "${news["judul"]}\n\n${news["konten"]}",
-              );
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.share),
+        //     color: Colors.black87,
+        //     onPressed: () async {
+        //       await Share.share(
+        //         "${data["judul"]}\n\n${data["konten"]}",
+        //       );
+        //     },
+        //   ),
+        // ],
       ),
 
       body: SingleChildScrollView(
@@ -76,19 +120,22 @@ class DetailBeritaScreen extends StatelessWidget {
             SizedBox(
               height: 240,
               width: double.infinity,
-              child: news["gambar_url"] != null &&
-              news["gambar_url"].toString().isNotEmpty
-                  ? Image.network(
-                      news["gambar_url"],
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      color: Colors.grey.shade300,
-                      child: const Icon(
-                        Icons.article,
-                        size: 100,
-                      ),
-                    )
+              child:
+                (data["gambar_url"] ?? "")
+                .toString().isNotEmpty
+                  
+              ? Image.network(
+                  data["gambar_url"],
+                  fit: BoxFit.cover,
+                )
+
+              : Container(
+                  color: Colors.grey.shade300,
+                  child: const Icon(
+                    Icons.article,
+                    size: 100,
+                  ),
+                ),
             ),
 
             Transform.translate(
@@ -114,7 +161,7 @@ class DetailBeritaScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(
-                        (news["kategori"] ?? "BERITA")
+                        (data["kategori"] ?? "BERITA")
                             .toString()
                             .toUpperCase(),
                         style: const TextStyle(
@@ -128,7 +175,7 @@ class DetailBeritaScreen extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     Text(
-                      news["judul"] ?? "",
+                      data["judul"] ?? "",
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -154,12 +201,12 @@ class DetailBeritaScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              news["penulis"] ?? "Admin",
+                              data["penulis"] ?? "Admin",
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                             SizedBox(height: 2),
                             Text(
-                              formatTanggal(news["created_at"] ?? ""),
+                              formatTanggal(data["created_at"] ?? ""),
                               style: const TextStyle(
                                 color: Colors.grey,
                                 fontSize: 12,
@@ -173,7 +220,7 @@ class DetailBeritaScreen extends StatelessWidget {
                     const SizedBox(height: 30),
 
                     Text(
-                      news["konten"] ?? "",
+                      data["konten"] ?? "",
                       style: TextStyle(
                         fontSize: 16,
                         height: 1.8,
