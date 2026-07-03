@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/security_service.dart';
 
 class SecurityScreen extends StatefulWidget {
   const SecurityScreen({super.key});
@@ -27,6 +28,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
   
   bool isSaving = false;
   bool saved = false;
+  double passwordStrength = 0;
+  String passwordLabel = "Lemah";
+  Color passwordColor = Colors.red;
 
   Future<void> savePassword() async {
     setState(() {
@@ -34,14 +38,39 @@ class _SecurityScreenState extends State<SecurityScreen> {
       saved = false;
     });
 
-    await Future.delayed(
-      const Duration(milliseconds: 1500),
+    final error = await SecurityService.changePassword(
+      currentPassword: currentPasswordController.text.trim(),
+      newPassword: newPasswordController.text.trim(),
     );
+
+    if (!mounted) return;
+    if (error != null) {
+      setState(() {
+        isSaving = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     setState(() {
       isSaving = false;
       saved = true;
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Password berhasil diperbarui.",
+        ),
+        backgroundColor: Colors.green,
+      ),
+    );
 
     await Future.delayed(
       const Duration(seconds: 1),
@@ -49,7 +78,63 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
     if (!mounted) return;
 
+    currentPasswordController.clear();
+    newPasswordController.clear();
+    confirmPasswordController.clear();
+
     Navigator.pop(context, true);
+  }
+
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Password baru wajib diisi";
+    }
+    if (value.length < 8) {
+      return "Minimal 8 karakter";
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return "Harus mengandung huruf besar";
+    }
+    if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return "Harus mengandung huruf kecil";
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return "Harus mengandung angka";
+    }
+    return null;
+  }
+
+  void checkPasswordStrength(String password) {
+    double strength = 0;
+    if (password.length >= 8) {
+      strength += 0.25;
+    }
+    if (RegExp(r'[A-Z]').hasMatch(password)) {
+      strength += 0.25;
+    }
+    if (RegExp(r'[a-z]').hasMatch(password)) {
+      strength += 0.25;
+    }
+    if (RegExp(r'[0-9]').hasMatch(password)) {
+      strength += 0.25;
+    }
+
+    setState(() {
+      passwordStrength = strength;
+      if (strength <= 0.25) {
+        passwordLabel = "Lemah";
+        passwordColor = Colors.red;
+      } else if (strength <= 0.50) {
+        passwordLabel = "Sedang";
+        passwordColor = Colors.orange;
+      } else if (strength <= 0.75) {
+        passwordLabel = "Baik";
+        passwordColor = Colors.blue;
+      } else {
+        passwordLabel = "Kuat";
+        passwordColor = Colors.green;
+      }
+    });
   }
 
   @override
@@ -124,6 +209,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     label: 'Kata Sandi Saat Ini',
                     controller: currentPasswordController,
                     obscureText: !_showCurrentPassword,
+                    onChanged: checkPasswordStrength,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Password lama wajib diisi';
@@ -155,15 +241,29 @@ class _SecurityScreenState extends State<SecurityScreen> {
                             !_showNewPassword;
                       });
                     },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Password baru wajib diisi';
-                      }
-                      if (value.length < 8) {
-                        return 'Minimal 8 karakter';
-                      }
-                      return null;
-                    },
+                    validator: validatePassword,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  LinearProgressIndicator(
+                    value: passwordStrength,
+                    minHeight: 8,
+                    borderRadius: BorderRadius.circular(20),
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: AlwaysStoppedAnimation(
+                      passwordColor,
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    "Kekuatan Password : $passwordLabel",
+                    style: TextStyle(
+                      color: passwordColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
 
                   const SizedBox(height: 6),
@@ -173,7 +273,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     child: Padding(
                       padding: EdgeInsets.only(left: 4),
                       child: Text(
-                        'Minimal 8 karakter dengan kombinasi huruf dan angka.',
+                        'Minimal 8 karakter, terdiri dari huruf besar, huruf kecil, dan angka.',
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey,
@@ -196,6 +296,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
                       if (value != newPasswordController.text) {
                         return 'Password tidak cocok';
+                      }
+
+                      if (value == currentPasswordController.text) {
+                        return "Password baru tidak boleh sama dengan password lama";
                       }
 
                       return null;
@@ -294,6 +398,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     required bool obscureText,
     required VoidCallback onToggle,
     String? Function(String?)? validator,
+    ValueChanged<String>? onChanged,
   })
   
   {
@@ -318,6 +423,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           controller: controller,
           obscureText: obscureText,
           validator: validator,
+          onChanged: onChanged,
           decoration: InputDecoration(
             hintText: '••••••••',
 
