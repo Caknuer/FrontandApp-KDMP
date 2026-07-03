@@ -10,7 +10,7 @@ import '../../config/api_config.dart';
 import 'login_screen.dart';
 import 'waiting_approval_screen.dart';
 import 'rejected_screen.dart';
-
+import '../../services/notification_service.dart';
 import '../dashboard_screen.dart';
 
 class SplashOne extends StatefulWidget {
@@ -95,6 +95,10 @@ class _SplashOneState extends State<SplashOne> {
           result["data"]["status"];
 
       if (status == "approved") {
+
+        await NotificationService.requestPermission();
+        await NotificationService.saveFcmToken();
+        NotificationService.listenTokenRefresh();
 
         Navigator.pushReplacement(
           context,

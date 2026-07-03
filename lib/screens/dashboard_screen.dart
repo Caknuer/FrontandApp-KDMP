@@ -12,6 +12,8 @@ import 'pengumuman/index_screen.dart';
 import 'tarik/tarik_screen.dart';
 import 'notifikasi_screen.dart';
 import 'news/show_screen.dart';
+import '../services/news_service.dart';
+import '../services/announcement_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -35,11 +37,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double simpananWajib = 0;
   double simpananSukarela = 0;
   double totalSaldo = 0;
-
+  double saldoDapatDitarik = 0;
   int jumlahTunggakan = 0;
   double totalTunggakan = 0;
 
   bool loading = true;
+
+  List<Map<String, dynamic>> informasiTerbaru = [];
+  bool loadingInformasi = false;
 
   @override
     void initState() {
@@ -102,6 +107,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             await loadTagihan(
               data["id"],
             );
+
+            await loadInformasi();
         }
 
       } catch (e) {
@@ -144,6 +151,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             totalSaldo =
                 (data["saldo"] ?? 0)
                     .toDouble();
+
+            saldoDapatDitarik =
+                (data["saldo_dapat_ditarik"] ?? 0)
+                    .toDouble();
           });
         }
       } catch (e) {
@@ -155,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       try {
         final response = await http.get(
           Uri.parse(
-            "${ApiConfig.baseUrl}/tagihan/user/$userId",
+            "${ApiConfig.baseUrl}/tagihan/user/$userId/summary",
           ),
         );
 
@@ -174,6 +185,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       } catch (e) {
         debugPrint(e.toString());
+      }
+    }
+
+    Future<void> loadInformasi() async {
+      try {
+        setState(() {
+          loadingInformasi = true;
+        });
+
+        final berita =
+            await NewsService.getAll();
+
+        final pengumuman =
+            await AnnouncementService.getAll();
+
+        final List<Map<String, dynamic>> gabungan = [];
+
+        for (final item in berita) {
+          final data =
+              Map<String, dynamic>.from(item);
+
+          data["tipe"] = "berita";
+          gabungan.add(data);
+        }
+
+        for (final item in pengumuman) {
+          final data =
+              Map<String, dynamic>.from(item);
+          data["tipe"] = "pengumuman";
+          gabungan.add(data);
+        }
+
+        gabungan.sort(
+          (a, b) => DateTime.parse(
+            b["created_at"],
+          ).compareTo(
+            DateTime.parse(
+              a["created_at"],
+            ),
+          ),
+        );
+
+        setState(() {
+          informasiTerbaru =
+              gabungan.take(5).toList();
+
+          loadingInformasi = false;
+        });
+
+      } catch (e) {
+
+        debugPrint(
+          e.toString(),
+        );
+
+        setState(() {
+          loadingInformasi = false;
+        });
       }
     }
 
@@ -199,16 +268,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         title: Row(
           children: const [
-
-            Icon(
-              Icons.account_balance,
-              color: DashboardScreen.primaryColor,
-            ),
-
-            SizedBox(width: 10),
-
             Text(
-              'Koperasi Desa',
+              'Dashboard',
               style: TextStyle(
                 color: DashboardScreen.primaryColor,
                 fontWeight: FontWeight.bold,
@@ -347,6 +408,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'Total Saldo Simpanan',
                             style: TextStyle(
                               color: Colors.white70,
+                              fontSize: 20,
                             ),
                           ),
                         ],
@@ -370,7 +432,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               'Rp',
                               style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 20,
+                                fontSize: 35,
                               ),
                             ),
                           ),
@@ -381,7 +443,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             rupiah(totalSaldo),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 32,
+                              fontSize: 47,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -435,32 +497,131 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 15),
 
             Container(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: jumlahTunggakan > 0
-                    ? Colors.orange.shade50
-                    : Colors.green.shade50,
-                borderRadius:
-                    BorderRadius.circular(20),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: jumlahTunggakan > 0
+                      ? Colors.orange.shade300
+                      : Colors.green.shade300,
+                ),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
 
-                  Icon(
-                    jumlahTunggakan > 0
-                        ? Icons.warning
-                        : Icons.check_circle,
+                  Row(
+                    children: [
+
+                      Icon(
+                        jumlahTunggakan > 0
+                            ? Icons.warning_amber_rounded
+                            : Icons.check_circle,
+                        color: jumlahTunggakan > 0
+                            ? Colors.orange
+                            : Colors.green,
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      const Text(
+                        "Tagihan Simpanan Wajib",
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
 
-                  const SizedBox(width: 12),
+                  const SizedBox(height: 18),
 
-                  Expanded(
-                    child: Text(
-                      jumlahTunggakan > 0
-                          ? "Tunggakan $jumlahTunggakan bulan\nRp ${rupiah(totalTunggakan)}"
-                          : "Tidak ada tunggakan simpanan wajib",
+                  if (jumlahTunggakan > 0) ...[
+
+                    Text(
+                      "Belum Dibayar",
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                      ),
                     ),
-                  ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      "$jumlahTunggakan Bulan",
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      "Total Tagihan",
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    Text(
+                      "Rp ${rupiah(totalTunggakan)}",
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+
+                        onPressed: () {
+
+                          Navigator.push(
+
+                            context,
+
+                            MaterialPageRoute(
+
+                              builder: (_) =>
+                                  const SetorSimpananPage(),
+
+                            ),
+
+                          );
+
+                        },
+
+                        child: const Text(
+                          "Lihat Tagihan",
+                        ),
+
+                      ),
+                    ),
+
+                  ] else ...[
+
+                    const Text(
+
+                      "Tidak ada tagihan simpanan wajib.",
+
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.w600,
+                      ),
+
+                    ),
+
+                  ],
+
                 ],
               ),
             ),
@@ -592,72 +753,94 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             .ellipsis,
                   ),
                 ),
-
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const BeritaPage(),
-                      ),
-                    );
-                  },
-
-                  child: const Text(
-                    'Lihat Semua',
-                    style: TextStyle(
-                      color:
-                          Color(0xffAF101A),
-                    ),
-                  ),
-                ),
               ],
             ),
 
             const SizedBox(height: 20),
 
-            modernNewsCard(
-              category: 'Acara',
-              categoryColor:  DashboardScreen.primaryColor,
-              title: 'Rapat Tahunan Anggota 2024',
-              subtitle: 'Bahasan strategis perkembangan koperasi tahun ini.',
-              image: 'assets/images/register.png',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const DetailBeritaScreen(news:{},),
-                  ),
+            if (loadingInformasi)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (informasiTerbaru.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              alignment: Alignment.center,
+              child: const Text(
+                "Belum ada informasi terbaru.",
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics:
+                  const NeverScrollableScrollPhysics(),
+
+              itemCount:
+                  informasiTerbaru.length,
+
+              separatorBuilder:
+                  (_, __) =>
+                      const SizedBox(height: 15),
+
+              itemBuilder: (context, index) {
+
+                final item =
+                    informasiTerbaru[index];
+
+                final isBerita =
+                    item["tipe"] == "berita";
+
+                return modernNewsCard(
+                  category:
+                      isBerita
+                          ? (item["kategori"] ??
+                              "Berita")
+                          : "Pengumuman",
+
+                  categoryColor:
+                      isBerita
+                          ? Colors.blue
+                          : Colors.red,
+
+                  title:
+                      item["judul"] ?? "-",
+                  subtitle:
+                      item["konten"] ?? "",
+                  imageUrl:
+                      item["gambar"] ?? "",
+
+                  onTap: () {
+                    if (isBerita) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              DetailBeritaScreen(
+                            id: item["id"],
+                          ),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              PengumumanPage(),
+                        ),
+                      );
+                    }
+                  },
                 );
               },
             ),
-
-            const SizedBox(height: 15),
-
-            modernNewsCard(
-              category: 'Program',
-              categoryColor:
-                  DashboardScreen.primaryColor,
-
-              title:
-                  'Pinjaman Modal Usaha',
-
-              subtitle:
-                  'Bunga spesial 0.5% untuk UMKM aktif desa.',
-
-              image:
-                  'assets/images/register.png',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const DetailBeritaScreen(news: {},),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 120),
           ],
         ),
       ),
@@ -821,7 +1004,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required Color categoryColor,
     required String title,
     required String subtitle,
-    required String image,
+    String? imageUrl,
     VoidCallback? onTap,
   }) {
 
@@ -844,21 +1027,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           child: Row(
             children: [
-
               ClipRRect(
                 borderRadius:
-                    BorderRadius.circular(
-                  18,
-                ),
-
-                child: Image.asset(
-                  image,
-
-                  width: 85,
-                  height: 85,
-
-                  fit: BoxFit.cover,
-                ),
+                    BorderRadius.circular(16),
+                child:
+                  imageUrl != null &&
+                        imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,width: 100,height: 90,fit: BoxFit.cover,
+                        errorBuilder:
+                            (_, __, ___) {
+                          return Image.asset(
+                            "assets/images/register.png",
+                            width: 100,height: 90,fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        "assets/images/register.png",
+                        width: 100,height: 90,fit: BoxFit.cover,
+                      ),
               ),
 
               const SizedBox(width: 15),

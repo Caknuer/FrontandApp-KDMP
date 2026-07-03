@@ -8,20 +8,40 @@ import 'syarat_screen.dart';
 import 'detailprofil_screen.dart';
 import 'dart:io';
 import '../auth/login_screen.dart';
+import '../../services/profile_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() =>
-      _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
   File? profileImage;
+  Map<String, dynamic>? profile;
+  bool loading = true;
+
+  Future<void> loadProfile() async {
+    profile = await ProfileService.getProfile();
+    if (mounted) {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       backgroundColor: const Color(0xffFCF9F8),
       appBar: AppBar(
@@ -46,34 +66,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             // PROFILE
             InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                final result =
+                    await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => DetailProfilScreen(
-                      profileImage: profileImage,
+                    builder: (_) =>
+                        DetailProfilScreen(
+                      profile: profile,
+                      profileImage:
+                          profileImage,
                     ),
                   ),
                 );
+
+                if (result == true) {
+                  await loadProfile();
+                }
               },
               child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(13),
-                  blurRadius: 10,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(13),
+                      blurRadius: 10,
+                    ),
+                  ],
                 ),
-              ],
-              ),
-              child: 
-                 Row(
+                child: Row(
                   children: [
                     Stack(
                       children: [
@@ -82,8 +108,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           backgroundColor: Colors.grey.shade300,
                           backgroundImage: profileImage != null
                               ? FileImage(profileImage!)
+                              : profile?["foto_profile_url"] != null &&
+                                    profile!["foto_profile_url"] != ""
+                              ? NetworkImage(profile!["foto_profile_url"])
                               : null,
-                          child: profileImage == null
+                          child:
+                              profileImage == null &&
+                                  (profile?["foto_profile_url"] == null ||
+                                      profile!["foto_profile_url"] == "")
                               ? Icon(
                                   Icons.person,
                                   size: 40,
@@ -112,31 +144,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(width: 16),
 
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Budi Santoso',
-                            style: TextStyle(
+                            profile?["nama"] ?? "-",
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Member ID: ID-98231',
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
+                            "Member ID: ${profile?["id"]?.toString().substring(0, 8) ?? "-"}",
+                            style: const TextStyle(color: Colors.grey),
                           ),
                           SizedBox(height: 8),
                           Chip(
-                            backgroundColor: Color(0xffFFDAD6),
+                            backgroundColor: profile?["status"] == "approved"
+                                ? const Color(0xffD8F5D0)
+                                : profile?["status"] == "pending"
+                                ? const Color(0xffFFF3CD)
+                                : const Color(0xffFFDAD6),
                             label: Text(
-                              'ANGGOTA AKTIF',
+                              profile?["status"] == "approved"
+                                  ? "ANGGOTA AKTIF"
+                                  : profile?["status"] == "pending"
+                                  ? "MENUNGGU PERSETUJUAN"
+                                  : "TIDAK AKTIF",
                               style: TextStyle(
-                                color: Color(0xff930010),
+                                color: profile?["status"] == "approved"
+                                    ? Colors.green.shade800
+                                    : profile?["status"] == "pending"
+                                    ? Colors.orange.shade800
+                                    : const Color(0xff930010),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
@@ -146,10 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    const Icon(
-                      Icons.chevron_right,
-                      color: Colors.grey,
-                    ),
+                    const Icon(Icons.chevron_right, color: Colors.grey),
                   ],
                 ),
               ),
@@ -174,14 +213,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const EditProfileScreen(),
+                    builder: (_) =>
+                        EditProfileScreen(
+                      profile: profile,
+                      profileImage: profileImage,
+                    ),
                   ),
                 );
 
-                if (result != null) {
-                  setState(() {
-                    profileImage = result;
-                  });
+                if (result == true) {
+                  await loadProfile();
                 }
               },
             ),
@@ -192,9 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const SecurityScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const SecurityScreen()),
                 );
               },
             ),
@@ -205,9 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const TermsScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const TermsScreen()),
                 );
               },
             ),
@@ -219,29 +256,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 55,
 
               child: OutlinedButton.icon(
-                onPressed: () {Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const LoginScreen(),
-                  ),
-                );},
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
 
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(
-                    color: Color(0xffAF101A),
-                    width: 2,
-                  ),
+                  side: const BorderSide(color: Color(0xffAF101A), width: 2),
 
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
 
-                icon: const Icon(
-                  Icons.logout,
-                  color: Color(0xffAF101A),
-                ),
+                icon: const Icon(Icons.logout, color: Color(0xffAF101A)),
 
                 label: const Text(
                   'Keluar Akun',
@@ -258,9 +288,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const Center(
               child: Text(
                 'Versi Aplikasi 2.4.1',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
+                style: TextStyle(color: Colors.grey),
               ),
             ),
           ],
@@ -268,66 +296,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
 
       bottomNavigationBar: BottomNavigationBar(
-      currentIndex: 3,
-      selectedItemColor: const Color(0xffAF101A),
-      unselectedItemColor: Colors.grey,
+        currentIndex: 3,
+        selectedItemColor: const Color(0xffAF101A),
+        unselectedItemColor: Colors.grey,
 
-      onTap: (index) {
-
-        if (index == 0) {
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const DashboardScreen(),
-            ),
-          );
-
-        } else if (index == 1) {
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const TransactionHistoryScreen(),
-            ),
-          );
-
-        } else if (index == 2) {
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const InfoScreen(),
-            ),
-          );
-
-        } else if (index == 3) {
-          return; // Sudah di halaman profil, tidak perlu navigasi
-        }
-
-      },
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            );
+          } else if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const TransactionHistoryScreen(),
+              ),
+            );
+          } else if (index == 2) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const InfoScreen()),
+            );
+          } else if (index == 3) {
+            return; // Sudah di halaman profil, tidak perlu navigasi
+          }
+        },
 
         items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Beranda',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Riwayat',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.info), label: 'Info'),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            label: 'Info',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Akun',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
         ],
       ),
     );
@@ -346,12 +349,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor:
-              const Color(0xffAF101A).withAlpha(26),
-          child: Icon(
-            icon,
-            color: const Color(0xffAF101A),
-          ),
+          backgroundColor: const Color(0xffAF101A).withAlpha(26),
+          child: Icon(icon, color: const Color(0xffAF101A)),
         ),
         title: Text(title),
         trailing: const Icon(Icons.chevron_right),

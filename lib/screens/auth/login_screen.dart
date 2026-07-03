@@ -8,6 +8,9 @@ import 'rejected_screen.dart';
 import 'register_screen.dart';
 import '../dashboard_screen.dart';
 import '../../services/auth_service.dart';
+import '../../services/forgot_password_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/notification_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,6 +32,48 @@ class _LoginScreenState
   bool isPasswordHidden = true;
   bool rememberMe = false;
   bool isLoading = false;
+
+  Future<void> saveRememberMe() async {
+    final prefs =
+        await SharedPreferences.getInstance();
+    if (rememberMe) {
+      await prefs.setBool(
+        "remember_me",
+        true,
+      );
+
+      await prefs.setString(
+        "remember_email",
+        emailController.text.trim(),
+      );
+    } else {
+      await prefs.remove(
+        "remember_me",
+      );
+
+      await prefs.remove(
+        "remember_email",
+      );
+    }
+  }
+
+  Future<void> loadRememberMe() async {
+    final prefs =
+        await SharedPreferences.getInstance();
+
+    final remember =
+        prefs.getBool("remember_me") ?? false;
+
+    final email =
+        prefs.getString("remember_email") ?? "";
+
+    setState(() {
+      rememberMe = remember;
+      if (remember) {
+        emailController.text = email;
+      }
+    });
+  }
 
   Future<void> login() async {
 
@@ -60,6 +105,9 @@ class _LoginScreenState
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+      await NotificationService.requestPermission();
+      await NotificationService.saveFcmToken();
+      NotificationService.listenTokenRefresh();
 
       final token =
           await credential.user!
@@ -130,6 +178,8 @@ class _LoginScreenState
         return;
 
       }
+      
+      await saveRememberMe();
 
       Navigator.pushReplacement(
         context,
@@ -194,6 +244,73 @@ class _LoginScreenState
 
     }
 
+  }
+
+  Future<void> showForgotPasswordDialog() async {
+    final controller =
+        TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            "Lupa Password",
+          ),
+          content: TextField(
+            controller: controller,
+            keyboardType:
+                TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: "Email",
+              hintText:
+                  "Masukkan email akun",
+            ),
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Batal"),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                final error =
+                    await ForgotPasswordService
+                        .resetPassword(
+                  controller.text,
+                );
+                if (!mounted) return;
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      error ??
+                      "Link reset password telah dikirim ke email Anda.",
+                    ),
+                    backgroundColor:
+                        error == null
+                            ? Colors.green
+                            : Colors.red,
+                  ),
+                );
+              },
+
+              child: const Text("Kirim"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadRememberMe();
   }
 
   @override
@@ -605,24 +722,16 @@ class _LoginScreenState
                           ),
 
                           TextButton(
-                            onPressed: () {},
-
-                            child:
-                                const Text(
-                              'Lupa Password?',
-
-                              style:
-                                  TextStyle(
-                                color: Color(
-                                  0xffAF101A,
-                                ),
-
-                                fontWeight:
-                                    FontWeight
-                                        .bold,
+                            onPressed:
+                                showForgotPasswordDialog,
+                            child: const Text(
+                              "Lupa Password?",
+                              style: TextStyle(
+                                color: Color(0xffAF101A),
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
+                          )
                         ],
                       ),
 
