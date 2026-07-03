@@ -659,10 +659,14 @@ class _SetorSimpananPageState extends State<SetorSimpananPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => KonfirmasiSetoranScreen(
-                              jenis: selectedJenis,
-                              nominal: amountController.text,
-                              keterangan: noteController.text,
-                            ),
+                            jenis: selectedJenis,
+                            nominal: amountController.text,
+                            keterangan: noteController.text,
+                            selectedTagihan:
+                                List<String>.from(
+                                  selectedTagihan,
+                                ),
+                            )
                           ),
                         );
                       },

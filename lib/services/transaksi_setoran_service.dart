@@ -6,12 +6,13 @@ import 'auth_service.dart';
 
 class TransaksiSetoranService {
 
-  static Future<Map<String, dynamic>?> create({
-    required String jenis,
-    required String nominal,
-    required String keterangan,
-    required String metodePembayaran,
-    String buktiPembayaran = "",
+  static Future<Map<String,dynamic>?> create({
+  required String jenis,
+  required String nominal,
+  required String keterangan,
+  required String metodePembayaran,
+  required List<String> periodeTagihan,
+  String buktiPembayaran="",
   }) async {
 
     try {
@@ -41,6 +42,7 @@ class TransaksiSetoranService {
         "metode_pembayaran": metodePembayaran,
         "bukti_pembayaran": buktiPembayaran,
         "keterangan": keterangan,
+        "periode_tagihan": periodeTagihan,
       };
 
       print("BODY KIRIM:");

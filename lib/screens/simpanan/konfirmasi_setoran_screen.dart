@@ -12,12 +12,14 @@ class KonfirmasiSetoranScreen extends StatefulWidget {
   final String jenis;
   final String nominal;
   final String keterangan;
+  final List<String> selectedTagihan;
 
   const KonfirmasiSetoranScreen({
     super.key,
     required this.jenis,
     required this.nominal,
     required this.keterangan,
+    required this.selectedTagihan,
   });
 
   @override
@@ -254,6 +256,41 @@ class _KonfirmasiSetoranScreenState
               ),
             ),
 
+            const Divider(),
+
+            const SizedBox(height: 8),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Tagihan yang Dibayar",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            ...widget.selectedTagihan.map(
+              (periode) => Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 4,
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      size: 18,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(periode),
+                  ],
+                ),
+              ),
+            ),
+
             const SizedBox(height: 16),
 
             Align(
@@ -279,7 +316,6 @@ class _KonfirmasiSetoranScreenState
               ),
               child: Column(
                 children: [
-
                   RadioListTile<String>(
                     value: "QRIS",
                     groupValue: metodePembayaran,
@@ -516,6 +552,7 @@ class _KonfirmasiSetoranScreenState
                       keterangan: widget.keterangan,
                       metodePembayaran: metodePembayaran,
                       buktiPembayaran: buktiUrl,
+                      periodeTagihan: widget.selectedTagihan,
                     );
 
                     if (transaksi == null) {
