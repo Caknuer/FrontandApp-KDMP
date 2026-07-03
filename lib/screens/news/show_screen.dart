@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+// import 'package:share_plus/share_plus.dart';
 import '../../services/news_service.dart';
 
 class DetailBeritaScreen extends StatefulWidget {
