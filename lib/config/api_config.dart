@@ -1,6 +1,6 @@
 class ApiConfig {
 
   static const String baseUrl =
-      "http://192.168.11.168:5000/api";
+      "https://backend-karsa-production.up.railway.app/api";
 
 }

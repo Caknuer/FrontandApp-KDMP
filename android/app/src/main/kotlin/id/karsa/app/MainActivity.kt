@@ -1,4 +1,4 @@
-package com.example.kdkmp_app
+package id.karsa.app
 
 import io.flutter.embedding.android.FlutterActivity
 
