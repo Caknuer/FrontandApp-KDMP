@@ -14,6 +14,7 @@ import 'notifikasi_screen.dart';
 import 'news/show_screen.dart';
 import '../services/news_service.dart';
 import '../services/announcement_service.dart';
+import '../../services/privacy_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -399,19 +400,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         CrossAxisAlignment
                             .start,
                     children: [
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment
-                                .spaceBetween,
-                        children: [
-                          const Text(
-                            'Total Saldo Simpanan',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
+                      AnimatedBuilder(
+                        animation: PrivacyService.instance,
+                        builder: (_, __) {
+                          return Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Total Saldo Simpanan',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 20,
+                                ),
+                              ),
+
+                              IconButton(
+                                onPressed: () {
+                                  PrivacyService.instance.toggleBalance();
+                                },
+                                icon: Icon(
+                                  PrivacyService.instance.hideBalance
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
 
                       const SizedBox(
@@ -439,13 +456,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                           const SizedBox(width: 8),
 
-                          Text(
-                            rupiah(totalSaldo),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 47,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          AnimatedBuilder(
+                            animation: PrivacyService.instance,
+                            builder: (_, __) {
+                              return Text(
+                                PrivacyService.instance.hideBalance
+                                    ? "••••••••"
+                                    : rupiah(totalSaldo),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 47,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
                           ),
                         ]
                       ),
