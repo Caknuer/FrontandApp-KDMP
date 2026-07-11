@@ -4,6 +4,11 @@ import 'firebase_options.dart';
 import 'screens/auth/splash_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'services/fcm_service.dart';
+import 'widgets/idle_detector.dart';
+import 'services/session_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'screens/auth/login_screen.dart';
+import 'config/app_navigator.dart';
 
 Future<void> main() async {
 
@@ -33,14 +38,37 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Koperasi Desa',
-      theme: ThemeData(
-        fontFamily: 'Roboto',
-        primaryColor: Colors.red,
+    return IdleDetector(
+      timeout: const Duration(
+        minutes: 10,
       ),
-      home: const SplashOne(),
+      onTimeout: () async {
+        try {
+          SessionService.stop();
+          await FirebaseAuth.instance.signOut();
+        } catch (e) {
+          debugPrint(
+            "AUTO LOGOUT ERROR: $e",
+          );
+        }
+        navigatorKey.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+          ),
+          (route) => false,
+        );
+      },
+
+      child: MaterialApp(
+        navigatorKey: navigatorKey,
+        debugShowCheckedModeBanner: false,
+        title: 'Koperasi Desa',
+        theme: ThemeData(
+          fontFamily: 'Roboto',
+          primaryColor: Colors.red,
+        ),
+        home: const SplashOne(),
+      ),
     );
 
   }
