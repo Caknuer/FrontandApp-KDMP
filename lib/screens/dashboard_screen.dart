@@ -53,6 +53,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       loadProfile();
     }
 
+    Future<void> refreshData() async {
+      await loadProfile();
+    }
+
     Future<void> loadProfile() async {
       try {
 
@@ -83,6 +87,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final data =
               result["data"];
 
+          if (!mounted) return;
           setState(() {
 
             namaUser =
@@ -136,6 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final data =
               result["data"];
 
+          if (!mounted) return;
           setState(() {
             simpananPokok =
                 (data["simpanan_pokok"] ?? 0)
@@ -175,6 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final result = jsonDecode(response.body);
           final data = result["data"];
 
+          if (!mounted) return;
           setState(() {
             jumlahTunggakan =
                 data["jumlah_bulan"] ?? 0;
@@ -191,6 +198,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     Future<void> loadInformasi() async {
       try {
+        if (!mounted) return;
         setState(() {
           loadingInformasi = true;
         });
@@ -228,6 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
 
+        if (!mounted) return;
         setState(() {
           informasiTerbaru =
               gabungan.take(5).toList();
@@ -241,6 +250,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           e.toString(),
         );
 
+        if (!mounted) return;
         setState(() {
           loadingInformasi = false;
         });
@@ -319,10 +329,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
 
-      body: SingleChildScrollView(
-        padding:
-            const EdgeInsets.all(20),
-
+      body: RefreshIndicator(
+      color: DashboardScreen.primaryColor,
+      onRefresh: refreshData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment:
               CrossAxisAlignment.start,
@@ -402,7 +414,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       AnimatedBuilder(
                         animation: PrivacyService.instance,
-                        builder: (_, __) {
+                        builder: (_, _) {
                           return Row(
                             mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
@@ -458,7 +470,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                           AnimatedBuilder(
                             animation: PrivacyService.instance,
-                            builder: (_, __) {
+                            builder: (_, _) {
                               return Text(
                                 PrivacyService.instance.hideBalance
                                     ? "••••••••"
@@ -811,7 +823,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   informasiTerbaru.length,
 
               separatorBuilder:
-                  (_, __) =>
+                  (_, _) =>
                       const SizedBox(height: 15),
 
               itemBuilder: (context, index) {
@@ -839,7 +851,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   subtitle:
                       item["konten"] ?? "",
                   imageUrl:
-                      item["gambar"] ?? "",
+                      item["gambar_url"] ?? "",
 
                   onTap: () {
                     if (isBerita) {
@@ -867,6 +879,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
+      ),
       ),
 
       // ======================
@@ -1060,7 +1073,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ? Image.network(
                         imageUrl,width: 100,height: 90,fit: BoxFit.cover,
                         errorBuilder:
-                            (_, __, ___) {
+                            (_, _, _) {
                           return Image.asset(
                             "assets/images/register.png",
                             width: 100,height: 90,fit: BoxFit.cover,

@@ -186,13 +186,13 @@ class DetailTransaksiScreen extends StatelessWidget {
 
                   _detailItem(
                     'Waktu',
-                    DateFormat(
-                      'HH:mm',
+                    "${DateFormat(
+                      "HH:mm",
                     ).format(
                       DateTime.parse(
-                        transaction['created_at'],
+                        transaction["created_at"],
                       ),
-                    ) + " WIB",
+                    )} WIB"
                   ),
 
                   Padding(

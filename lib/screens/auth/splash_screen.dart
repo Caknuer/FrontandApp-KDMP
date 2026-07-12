@@ -100,6 +100,7 @@ class _SplashOneState extends State<SplashOne> {
         await NotificationService.saveFcmToken();
         NotificationService.listenTokenRefresh();
 
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -111,6 +112,7 @@ class _SplashOneState extends State<SplashOne> {
       } else if (
           status == "pending") {
 
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -122,6 +124,7 @@ class _SplashOneState extends State<SplashOne> {
       } else if (
           status == "rejected") {
 
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -132,6 +135,7 @@ class _SplashOneState extends State<SplashOne> {
 
       } else {
 
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

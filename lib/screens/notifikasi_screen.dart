@@ -122,7 +122,7 @@ class _NotificationPageState extends State<NotificationPage> {
         );
 
         if (transaksi == null) {
-          if (!context.mounted) return;
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -133,7 +133,7 @@ class _NotificationPageState extends State<NotificationPage> {
           return;
         }
 
-        if (!context.mounted) return;
+        if (!mounted) return;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -152,7 +152,7 @@ class _NotificationPageState extends State<NotificationPage> {
           item["reference_id"].toString(),
         );
         if (transaksi == null) {
-          if (!context.mounted) return;
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -163,7 +163,7 @@ class _NotificationPageState extends State<NotificationPage> {
           return;
         }
 
-        if (!context.mounted) return;
+        if (!mounted) return;
         Navigator.push(
           context,
           MaterialPageRoute(

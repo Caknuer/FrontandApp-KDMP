@@ -181,6 +181,7 @@ class _LoginScreenState
       
       await saveRememberMe();
 
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

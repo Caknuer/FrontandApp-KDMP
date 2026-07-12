@@ -96,7 +96,7 @@ class _TarikSimpananScreenState
 
     } catch (e) {
 
-      print(e);
+      debugPrint(e.toString());
 
     }
 
@@ -246,6 +246,7 @@ class _TarikSimpananScreenState
                 return;
               }
 
+              if (!mounted) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
