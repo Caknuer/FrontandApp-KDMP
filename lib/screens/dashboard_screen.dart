@@ -1019,20 +1019,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String title,
     String value,
   ) {
-    return Row(
-      mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
-      children: [
+    return AnimatedBuilder(
+      animation: PrivacyService.instance,
+      builder: (_, _) {
+        return Row(
+          mainAxisAlignment:
+              MainAxisAlignment.spaceBetween,
+          children: [
 
-        Text(title),
+            Text(title),
 
-        Text(
-          value,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+            Text(
+              PrivacyService.instance.hideBalance
+                  ? "Rp ••••••••"
+                  : value,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
