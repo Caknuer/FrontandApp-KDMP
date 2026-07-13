@@ -26,7 +26,8 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen> 
+with WidgetsBindingObserver {
   bool hasNotification = true;
 
   String namaUser = "";
@@ -50,6 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
     void initState() {
       super.initState();
+      WidgetsBinding.instance.addObserver(this);
       loadProfile();
     }
 
@@ -264,6 +266,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (m) => '${m[1]}.',
         );
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (mounted) {
+        refreshData();
+      }
+    }
   }
   
   @override
